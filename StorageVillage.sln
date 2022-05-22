@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.2.32516.85
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "StorageVillage", "StorageVillage\StorageVillage.csproj", "{2B3346B9-1D60-4CDA-A177-FBD6F0C59A62}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{2B3346B9-1D60-4CDA-A177-FBD6F0C59A62}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2B3346B9-1D60-4CDA-A177-FBD6F0C59A62}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2B3346B9-1D60-4CDA-A177-FBD6F0C59A62}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2B3346B9-1D60-4CDA-A177-FBD6F0C59A62}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {CDF32107-32C3-480D-BB5D-0212911F45F0}
+	EndGlobalSection
+EndGlobal
