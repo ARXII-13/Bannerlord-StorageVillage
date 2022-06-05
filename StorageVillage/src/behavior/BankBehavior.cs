@@ -47,6 +47,7 @@ namespace StorageVillage.src.behavior
         private void OnSessionLaunched(CampaignGameStarter campaignGameStarter)
         {
             AddMenus(campaignGameStarter);
+            UpdateBankDescription();
         }
 
         private void AddMenus(CampaignGameStarter campaignGameStarter)
@@ -61,7 +62,7 @@ namespace StorageVillage.src.behavior
                 menuId: Constants.BANK_MENU_ID,
                 optionId: "storage_village_bank_deposit",
                 optionText: "{=!}Deposit",
-                condition: MenuConditionForSubMenu,
+                condition: MenuConditionForBankAction,
                 consequence: MenuConsequenceForDeposit,
                 isLeave: false,
                 index: 1
@@ -71,7 +72,7 @@ namespace StorageVillage.src.behavior
                 menuId: Constants.BANK_MENU_ID,
                 optionId: "storage_village_bank_withdraw",
                 optionText: "{=!}Withdraw",
-                condition: MenuConditionForSubMenu,
+                condition: MenuConditionForBankAction,
                 consequence: MenuConsequenceForWithdraw,
                 isLeave: false,
                 index: 2
@@ -156,9 +157,9 @@ namespace StorageVillage.src.behavior
             return true;
         }
 
-        private bool MenuConditionForSubMenu(MenuCallbackArgs args)
+        private bool MenuConditionForBankAction(MenuCallbackArgs args)
         {
-            args.optionLeaveType = GameMenuOption.LeaveType.Submenu;
+            args.optionLeaveType = GameMenuOption.LeaveType.Trade;
             return true;
         }
 

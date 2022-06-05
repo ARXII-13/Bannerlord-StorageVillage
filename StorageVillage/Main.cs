@@ -29,6 +29,7 @@ namespace StorageVillage
             {
                 CampaignGameStarter campaignStarter = (CampaignGameStarter)gameStarterObject;
                 campaignStarter.AddBehavior(new SettlementBehavior());
+                campaignStarter.AddBehavior(new TroopBehavior());
                 campaignStarter.AddBehavior(new BankBehavior());
                 campaignStarter.AddBehavior(new BanditBehavior());
 

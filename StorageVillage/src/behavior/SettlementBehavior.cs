@@ -5,7 +5,6 @@ using System;
 using TaleWorlds.CampaignSystem.Inventory;
 using TaleWorlds.CampaignSystem.Roster;
 using TaleWorlds.CampaignSystem.Settlements;
-using TaleWorlds.CampaignSystem.Party;
 using StorageVillage.src.util;
 
 namespace StorageVillage.src.behavior
@@ -13,7 +12,6 @@ namespace StorageVillage.src.behavior
     public class SettlementBehavior : CampaignBehaviorBase
     {
         private ItemRoster roster;
-        private MobileParty troopsParty;
 
         public override void RegisterEvents()
         {
@@ -23,7 +21,6 @@ namespace StorageVillage.src.behavior
         public override void SyncData(IDataStore dataStore)
         {
             dataStore.SyncData("inventoryData", ref roster);
-            dataStore.SyncData("troopData", ref troopsParty);
         }
 
         private void OnSessionLaunched(CampaignGameStarter campaignGameStarter)
@@ -40,54 +37,27 @@ namespace StorageVillage.src.behavior
             );
 
             campaignGameStarter.AddGameMenuOption(
-                menuId: "town", 
-                optionId: Constants.MAIN_MENU_ID,
-                optionText: "{=!}Storage Village",
-                condition: MenuConditionForStorageMenu, 
-                consequence: MenuConsequenceForStorage, 
-                isLeave: false, 
-                index: -2
-            );
-
-            campaignGameStarter.AddGameMenuOption(
                 menuId: Constants.MAIN_MENU_ID,
                 optionId: "storage_village_menu_inventory",
                 optionText: "{=!}Inventory",
-                condition: MenuConditionForSubMenu,
+                condition: delegate (MenuCallbackArgs args) {
+                    args.optionLeaveType = GameMenuOption.LeaveType.Manage;
+                    return true;
+                },
                 consequence: MenuConsequenceForInventory,
                 isLeave: false,
                 index: 1
             );
 
             campaignGameStarter.AddGameMenuOption(
-                menuId: Constants.MAIN_MENU_ID,
-                optionId: "storage_village_menu_troop",
-                optionText: "{=!}Troops",
-                condition: MenuConditionForSubMenu,
-                consequence: MenuConsequenceForTroop,
-                isLeave: false,
-                index: 2
+                 menuId: Constants.MAIN_MENU_ID,
+                 optionId: Constants.TROOP_MENU_ID,
+                 optionText: "{=!}Troops Management",
+                 condition: MenuConditionForSubMenu,
+                 consequence: MenuConsequenceForTroop,
+                 isLeave: false,
+                 index: 2
             );
-
-            campaignGameStarter.AddGameMenuOption(
-                menuId: Constants.MAIN_MENU_ID,
-                optionId: "storage_village_menu_donate_troops",
-                optionText: "{=!}Donate Troops",
-                condition: MenuConditionForSubMenu,
-                consequence: MenuConsequenceForDonateTroops,
-                isLeave: false,
-                index: 3
-            );
-
-            campaignGameStarter.AddGameMenuOption(
-                menuId: Constants.MAIN_MENU_ID,
-                optionId: "storage_village_menu_donate_prisoner",
-                optionText: "{=!}Donate Prisoners",
-                condition: MenuConditionForSubMenu,
-                consequence: MenuConsequenceForDonatePrisoner,
-                isLeave: false,
-                index: 4
-             );
 
             campaignGameStarter.AddGameMenuOption(
                 menuId: Constants.MAIN_MENU_ID,
@@ -96,7 +66,7 @@ namespace StorageVillage.src.behavior
                 condition: MenuConditionForSubMenu,
                 consequence: MenuConsequenceForBank,
                 isLeave: false,
-                index: 5
+                index: 3
              );
 
             campaignGameStarter.AddGameMenuOption(
@@ -106,7 +76,7 @@ namespace StorageVillage.src.behavior
                 condition: MenuConditionForSubMenu,
                 consequence: MenuConsequenceForBandit,
                 isLeave: false,
-                index: 6
+                index: 4
              );
 
             campaignGameStarter.AddGameMenuOption(
@@ -118,6 +88,16 @@ namespace StorageVillage.src.behavior
                 isLeave: false,
                 index: -1
              );
+
+            campaignGameStarter.AddGameMenuOption(
+                menuId: "town",
+                optionId: Constants.MAIN_MENU_ID,
+                optionText: "{=!}Storage Village",
+                condition: MenuConditionForStorageMenu,
+                consequence: MenuConsequenceForStorage,
+                isLeave: false,
+                index: -2
+            );
         }
 
         public static void StorageMenuInit(MenuCallbackArgs args)
@@ -156,31 +136,16 @@ namespace StorageVillage.src.behavior
 
             InventoryManager.OpenScreenAsStash(roster);
         }
-
         private void MenuConsequenceForTroop(MenuCallbackArgs args)
         {
-            if (troopsParty == null)
-            {
-                troopsParty = new MobileParty();
-            }
-
-            troopsParty.SetCustomName(new TextObject("Troops Storage"));
-            PartyScreenManager.OpenScreenAsManageTroopsAndPrisoners(troopsParty);
+            GameMenu.SwitchToMenu(Constants.TROOP_MENU_ID);
         }
 
-        private void MenuConsequenceForDonateTroops(MenuCallbackArgs args)
-        {
-            PartyScreenManager.OpenScreenAsDonateGarrisonWithCurrentSettlement();
-        }
-
-        private void MenuConsequenceForDonatePrisoner(MenuCallbackArgs args)
-        {
-            PartyScreenManager.OpenScreenAsDonatePrisoners();
-        }
         private void MenuConsequenceForBank(MenuCallbackArgs args)
         {
             GameMenu.SwitchToMenu(Constants.BANK_MENU_ID);
         }
+
         private void MenuConsequenceForBandit(MenuCallbackArgs args)
         {
             GameMenu.SwitchToMenu(Constants.BANDIT_MENU_ID);

@@ -212,6 +212,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="src\behavior\BanditBehaviour.cs" />
     <Compile Include="src\behavior\BankBehavior.cs" />
+    <Compile Include="src\behavior\TroopBehavior.cs" />
     <Compile Include="src\behavior\SettlementBehavior.cs" />
     <Compile Include="src\data\SaveDefiner.cs" />
     <Compile Include="src\util\Constants.cs" />
