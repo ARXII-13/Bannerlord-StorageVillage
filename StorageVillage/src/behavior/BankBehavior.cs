@@ -1,0 +1,338 @@
+﻿using TaleWorlds.CampaignSystem;
+using TaleWorlds.CampaignSystem.GameMenus;
+using TaleWorlds.Localization;
+using System;
+using TaleWorlds.CampaignSystem.Settlements;
+using TaleWorlds.Core;
+using StorageVillage.src.util;
+using TaleWorlds.CampaignSystem.Party;
+using System.Collections.Generic;
+using TaleWorlds.CampaignSystem.CharacterDevelopment;
+using System.Linq;
+
+namespace StorageVillage.src.behavior
+{
+    public class BankBehavior : CampaignBehaviorBase
+    {
+        private static int currentBalance;
+        private static double currentWeeklyInterest;
+
+        private const string BANK_INFO_TEXT_VARIABLE = "BANK_INFO";
+        private const string BANK_INFO_TITLE_TEXT_VARIABLE = "BANK_INFO_TITLE";
+        private const string BANK_INFO_RETURN_TEXT_VARIABLE = "BANK_INFO_APY";
+        private const string BANK_INFO_INTEREST_RATE_TEXT_VARIABLE = "BANK_INFO_INTEREST_RATE";
+        private const string BANK_INFO_BALANCE_TEXT_VARIABLE = "BANK_INFO_BALANCE";
+        private const string BANK_RESULT_TEXT_VARIABLE = "BANK_INFO";
+
+        private const double WEEKLY_BASE_INTEREST_RATE = 0.005;
+        private const double TRADE_SKILL_PROFIT_MULTIPLIER = 1;
+
+        private const string MONEY_ICON = "<img src=\"General\\Icons\\Coin@2x\" extend=\"8\">";
+
+        public override void RegisterEvents()
+        {
+            CampaignEvents.OnSessionLaunchedEvent.AddNonSerializedListener(this, new Action<CampaignGameStarter>(OnSessionLaunched));
+
+            CampaignEvents.DailyTickEvent.AddNonSerializedListener(
+                this,
+                new Action(this.HandleBankWeeklyTickEvent)
+            );
+        }
+
+        public override void SyncData(IDataStore dataStore)
+        {
+            dataStore.SyncData("currentBalance", ref currentBalance);
+        }
+
+        private void OnSessionLaunched(CampaignGameStarter campaignGameStarter)
+        {
+            AddMenus(campaignGameStarter);
+        }
+
+        private void AddMenus(CampaignGameStarter campaignGameStarter)
+        {
+            campaignGameStarter.AddGameMenu(
+                menuId: Constants.BANK_MENU_ID,
+                menuText: $"{{{BANK_INFO_TEXT_VARIABLE}}}",
+                initDelegate: new OnInitDelegate(HandleBankMenuInit)
+            );
+
+            campaignGameStarter.AddGameMenuOption(
+                menuId: Constants.BANK_MENU_ID,
+                optionId: "storage_village_bank_deposit",
+                optionText: "{=!}Deposit",
+                condition: MenuConditionForSubMenu,
+                consequence: MenuConsequenceForDeposit,
+                isLeave: false,
+                index: 1
+            );
+
+            campaignGameStarter.AddGameMenuOption(
+                menuId: Constants.BANK_MENU_ID,
+                optionId: "storage_village_bank_withdraw",
+                optionText: "{=!}Withdraw",
+                condition: MenuConditionForSubMenu,
+                consequence: MenuConsequenceForWithdraw,
+                isLeave: false,
+                index: 2
+            );
+
+            campaignGameStarter.AddGameMenuOption(
+                menuId: Constants.BANK_MENU_ID,
+                optionId: "storage_village_bank_leave",
+                optionText: "{=!}Back to Storage",
+                condition: MenuConditionForLeave,
+                consequence: MenuConsequenceForLeave,
+                isLeave: false,
+                index: -1
+            );
+
+            campaignGameStarter.AddGameMenu(
+                menuId: Constants.BANK_RESULT_MENU_ID,
+                menuText: $"{{{BANK_INFO_TEXT_VARIABLE}}}",
+                initDelegate: new OnInitDelegate(HandleBankResultMenuInit)
+            );
+
+            campaignGameStarter.AddGameMenuOption(
+                menuId: Constants.BANK_RESULT_MENU_ID,
+                optionId: "storage_village_bank_result_leave",
+                optionText: "{=!}Back to Bank Menu",
+                condition: MenuConditionForLeave,
+                consequence: MenuConsequenceForBack,
+                isLeave: false,
+                index: 1
+            );
+        }
+
+        private void HandleBankMenuInit(MenuCallbackArgs args)
+        {
+            args.MenuTitle = new TextObject("{=!}National Bank");
+            UpdateBankDescription();
+        }
+
+        private void UpdateBankDescription() {
+            MBTextManager.SetTextVariable(
+                variableName: BANK_INFO_TITLE_TEXT_VARIABLE,
+                text: new TextObject($"National Bank")
+            );
+
+            MBTextManager.SetTextVariable(
+                variableName: BANK_INFO_BALANCE_TEXT_VARIABLE,
+                text: new TextObject($"Account Balance:\n{currentBalance:N0} {MONEY_ICON}")
+            );
+
+            MBTextManager.SetTextVariable(
+                variableName: BANK_INFO_INTEREST_RATE_TEXT_VARIABLE,
+                text: new TextObject($"Current Interest:\n{currentWeeklyInterest:N0}%")
+            );
+
+            MBTextManager.SetTextVariable(
+                variableName: BANK_INFO_RETURN_TEXT_VARIABLE,
+                text: new TextObject($"Current Weekly return:\n100 {MONEY_ICON} for every {Math.Round(100 / currentWeeklyInterest):N0} {MONEY_ICON} invested")
+            );
+
+            MBTextManager.SetTextVariable(
+                variableName: BANK_RESULT_TEXT_VARIABLE,
+                text: $"{{{BANK_INFO_TITLE_TEXT_VARIABLE}}}\n \n{{{BANK_INFO_BALANCE_TEXT_VARIABLE}}}\n \n{{{BANK_INFO_RETURN_TEXT_VARIABLE}}}\n \n{{{BANK_INFO_INTEREST_RATE_TEXT_VARIABLE}}}"
+            );
+        }
+
+        private void HandleBankResultMenuInit(MenuCallbackArgs args)
+        {
+            args.MenuTitle = new TextObject("{=!}Bank Result");
+            UpdateBankResultDescription();
+        }
+
+        private void UpdateBankResultDescription()
+        {
+            MBTextManager.SetTextVariable(
+                variableName: BANK_INFO_TEXT_VARIABLE,
+                text: new TextObject($"Action completed successfully! \n \nThe current balance is :\n{currentBalance:N0} {MONEY_ICON}"));
+        }
+
+        private bool MenuConditionForLeave(MenuCallbackArgs args)
+        {
+            args.optionLeaveType = GameMenuOption.LeaveType.Leave;
+            return true;
+        }
+
+        private bool MenuConditionForSubMenu(MenuCallbackArgs args)
+        {
+            args.optionLeaveType = GameMenuOption.LeaveType.Submenu;
+            return true;
+        }
+
+        private void MenuConsequenceForDeposit(MenuCallbackArgs args)
+        {
+            InformationManager.ShowTextInquiry(new TextInquiryData(
+                titleText: "Deposit", 
+                text: "Please input the amount of denar that you would like to deposit:",
+                isAffirmativeOptionShown: true,
+                isNegativeOptionShown: true,
+                affirmativeText: "Confirm",
+                negativeText: "Cancel",
+                affirmativeAction: new Action<string>(DepositFromBank),
+                negativeAction: null,
+                defaultInputText: "0",
+                textCondition: new Func<string, Tuple<bool, string>>(DepositTextCondition)
+            ));
+        }
+
+        private void DepositFromBank(string amount)
+        {
+            int depositAmount = ConvertStringToNumber(amount);
+            currentBalance += depositAmount;
+            PartyBase.MainParty.LeaderHero.ChangeHeroGold(-depositAmount);
+            UpdateBankDescription();
+            GameMenu.SwitchToMenu(Constants.BANK_RESULT_MENU_ID);
+        }
+
+        public static Tuple<bool, string> DepositTextCondition(string amount)
+        {
+            List<TextObject> list = IsProperMoneyAmount(amount);
+
+            int currentOwnedMoney = PartyBase.MainParty.LeaderHero.Gold;
+            int depositAmount = ConvertStringToNumber(amount);
+            if (currentOwnedMoney < depositAmount)
+            {
+                list.Add(new TextObject("{=!}You do not have sufficient balance to deposit!"));
+            }
+
+            return ConvertListToTuple(list);
+        }
+
+        private void MenuConsequenceForWithdraw(MenuCallbackArgs args)
+        {
+            InformationManager.ShowTextInquiry(new TextInquiryData(
+                 titleText: "Deposit",
+                 text: "Please input the amount of denar that you would like to withdraw:",
+                 isAffirmativeOptionShown: true,
+                 isNegativeOptionShown: true,
+                 affirmativeText: "Confirm",
+                 negativeText: "Cancel",
+                 affirmativeAction: new Action<string>(WithdrawFromBank),
+                 negativeAction: null,
+                 defaultInputText: "0",
+                 textCondition: new Func<string, Tuple<bool, string>>(WithdrawTextCondition)
+             ));
+        }
+
+        private void WithdrawFromBank(string amount)
+        {
+            int withdrawAmount = ConvertStringToNumber(amount);
+            currentBalance -= withdrawAmount;
+            PartyBase.MainParty.LeaderHero.ChangeHeroGold(-withdrawAmount);
+            UpdateBankDescription();
+            GameMenu.SwitchToMenu(Constants.BANK_RESULT_MENU_ID);
+        }
+
+        public static Tuple<bool, string> WithdrawTextCondition(string amount)
+        {
+            List<TextObject> list = IsProperMoneyAmount(amount);
+
+            int withdrawAmount = ConvertStringToNumber(amount);
+            if (currentBalance < withdrawAmount)
+            {
+                list.Add(new TextObject("{=!}You do not have sufficient balance to withdraw!"));
+            }
+
+            return ConvertListToTuple(list);
+        }
+
+        private void MenuConsequenceForLeave(MenuCallbackArgs args)
+        {
+            GameMenu.SwitchToMenu(Constants.MAIN_MENU_ID);
+        }
+
+        private void MenuConsequenceForBack(MenuCallbackArgs args)
+        {
+            GameMenu.SwitchToMenu(Constants.BANK_MENU_ID);
+        }
+
+        private static int ConvertStringToNumber(string amount)
+        {
+            var isNumeric = int.TryParse(amount, out int n);
+            if (isNumeric)
+            {
+                return Int32.Parse(amount);
+            }
+            return 0;
+        }
+
+        private static List<TextObject> IsProperMoneyAmount(string amount)
+        {
+            List<TextObject> list = new List<TextObject>();
+            var isNumeric = int.TryParse(amount, out int n);
+
+            if (!isNumeric)
+            {
+                list.Add(new TextObject("{=!}The input must be a proper number!"));
+            }
+
+            return list;
+        }
+
+        public static Tuple<bool, string> ConvertListToTuple(List<TextObject> list) {
+            string item = string.Empty;
+            bool item2 = list.Count == 0;
+            if (list.Count == 1)
+            {
+                item = list[0].ToString();
+            }
+            else if (list.Count > 1)
+            {
+                TextObject textObject = list[0];
+                for (int i = 1; i < list.Count; i++)
+                {
+                    textObject = GameTexts.FindText("str_string_newline_newline_string").SetTextVariable("STR1", textObject.ToString()).SetTextVariable("STR2", list[i].ToString());
+                }
+
+                item = textObject.ToString();
+            }
+
+            return new Tuple<bool, string>(item2, item);
+        }
+
+        private void HandleBankWeeklyTickEvent()
+        {
+            currentWeeklyInterest = CalculateWeeklyInterest();
+            int interestEarned = CalculateBankInterestEarn();
+            currentBalance += interestEarned;
+
+            SkillLevelingManager.OnTradeProfitMade(Clan.PlayerClan.Leader, (int)Math.Round(interestEarned * TRADE_SKILL_PROFIT_MULTIPLIER));
+            InformationManager.DisplayMessage(new InformationMessage($"Weekly interests earned: {interestEarned} {MONEY_ICON}"));
+        }
+
+        private double CalculateWeeklyInterest()
+        {
+            float totalProsperous = 0;
+            int numOfTown = 0;
+
+            List<Settlement> settlements = Settlement.FindAll(settlement => settlement.IsTown).ToList();
+
+            foreach (Settlement settlement in settlements) {
+                if (settlement.IsTown ) {
+                    totalProsperous += settlement.Prosperity;
+                    numOfTown++;
+                }
+            }
+
+            float averageProsperous = totalProsperous / numOfTown;
+            int tradeLevel = Clan.PlayerClan.Leader.GetSkillValue(DefaultSkills.Trade);
+
+            double baseInterestRate = WEEKLY_BASE_INTEREST_RATE;
+
+            // use the exponential to calculate the interest rate adjustment 
+            var prosperityAdjustment = (1 - Math.Exp(-0.0008 * (averageProsperous - 2000)));
+            var tradeSkillAdjustment = (1 - Math.Exp(-0.01 * tradeLevel));
+            var adjustedInterestRate = baseInterestRate * prosperityAdjustment;
+
+            return adjustedInterestRate;
+        }
+
+        public int CalculateBankInterestEarn()
+        {
+            return (int)Math.Round(currentWeeklyInterest * currentBalance);
+        }
+    }
+}

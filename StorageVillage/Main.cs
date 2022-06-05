@@ -1,8 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using StorageVillage.src.behavior;
+using StorageVillage.src.model;
+using TaleWorlds.CampaignSystem;
 using TaleWorlds.Core;
 using TaleWorlds.Localization;
 using TaleWorlds.MountAndBlade;
@@ -11,19 +9,60 @@ namespace StorageVillage
 {
     public class Main : MBSubModuleBase
     {
-        protected override void OnSubModuleLoad() { 
-            Module.CurrentModule.AddInitialStateOption( 
+        public const string ModId = "StorageVillage";
+
+        protected override void OnSubModuleLoad()
+        {
+            base.OnSubModuleLoad();
+
+            //this.testCommand();
+        }
+
+        protected override void OnSubModuleUnloaded()
+        {
+            base.OnSubModuleUnloaded();
+        }
+
+        protected override void OnGameStart(Game game, IGameStarter gameStarterObject)
+        {
+            if (game.GameType is Campaign)
+            {
+                CampaignGameStarter campaignStarter = (CampaignGameStarter)gameStarterObject;
+                campaignStarter.AddBehavior(new SettlementBehavior());
+                campaignStarter.AddBehavior(new BankBehavior());
+                campaignStarter.AddBehavior(new BanditBehavior());
+
+                campaignStarter.AddModel(new StoragePartyLimitModel());
+            }
+        }
+
+        protected void testCommand()
+        {
+            Module.CurrentModule.AddInitialStateOption(
                 new InitialStateOption(
-                    "TestMainMenuOption", 
-                    new TextObject("Click me!", null), 
-                    9990, 
-                    () => {
+                    "TestMainMenuOption",
+                    new TextObject("Click me!", null),
+                    9990,
+                    () =>
+                    {
                         InformationManager.DisplayMessage(new InformationMessage("InformationMessage"));
-                    }, 
+                    },
                     () =>
                     {
                         return (false, null);
-                    }));
+                    }
+                )
+            );
         }
+
     }
 }
+
+//TODO(s)
+//    1. Banking System in game with weekly interest (Done)
+//    2. Merge Bandit Units and expose the threhold that as a user settings
+//    3. Add a option to allow the town/castle to not recruit militia 
+//    4. Increase workshop limit and can still have it during a war
+
+//xcopy "F:\StorageVillage\StorageVillage\ModuleData" "F:\SteamLibrary\steamapps\common\Mount & Blade II Bannerlord\Modules\StorageVillage\ModuleData" / E / I
+//xcopy "F:\StorageVillage\StorageVillage\SubModule.xml" "F:\SteamLibrary\steamapps\common\Mount & Blade II Bannerlord\Modules\StorageVillage\SubModule.xml*"
