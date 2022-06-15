@@ -90,7 +90,7 @@ namespace StorageVillage.src.behavior
 
             campaignGameStarter.AddGameMenu(
                 menuId: Constants.BANK_RESULT_MENU_ID,
-                menuText: $"{{{BANK_INFO_TEXT_VARIABLE}}}",
+                menuText: $"{{{BANK_RESULT_TEXT_VARIABLE}}}",
                 initDelegate: new OnInitDelegate(HandleBankResultMenuInit)
             );
 
@@ -108,6 +108,7 @@ namespace StorageVillage.src.behavior
         private void HandleBankMenuInit(MenuCallbackArgs args)
         {
             args.MenuTitle = new TextObject("{=!}National Bank");
+            currentWeeklyInterest = CalculateWeeklyInterest();
             UpdateBankDescription();
         }
 
@@ -133,7 +134,7 @@ namespace StorageVillage.src.behavior
             );
 
             MBTextManager.SetTextVariable(
-                variableName: BANK_RESULT_TEXT_VARIABLE,
+                variableName: BANK_INFO_TEXT_VARIABLE,
                 text: $"{{{BANK_INFO_TITLE_TEXT_VARIABLE}}}\n \n{{{BANK_INFO_BALANCE_TEXT_VARIABLE}}}\n \n{{{BANK_INFO_RETURN_TEXT_VARIABLE}}}\n \n{{{BANK_INFO_INTEREST_RATE_TEXT_VARIABLE}}}"
             );
         }
@@ -147,7 +148,7 @@ namespace StorageVillage.src.behavior
         private void UpdateBankResultDescription()
         {
             MBTextManager.SetTextVariable(
-                variableName: BANK_INFO_TEXT_VARIABLE,
+                variableName: BANK_RESULT_TEXT_VARIABLE,
                 text: new TextObject($"Action completed successfully! \n \nThe current balance is :\n{currentBalance:N0} {MONEY_ICON}"));
         }
 
@@ -222,7 +223,7 @@ namespace StorageVillage.src.behavior
         {
             int withdrawAmount = ConvertStringToNumber(amount);
             currentBalance -= withdrawAmount;
-            PartyBase.MainParty.LeaderHero.ChangeHeroGold(-withdrawAmount);
+            PartyBase.MainParty.LeaderHero.ChangeHeroGold(withdrawAmount);
             UpdateBankDescription();
             GameMenu.SwitchToMenu(Constants.BANK_RESULT_MENU_ID);
         }

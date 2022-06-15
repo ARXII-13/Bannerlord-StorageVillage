@@ -52,7 +52,7 @@ namespace StorageVillage.src.behavior
                 optionId: "storage_village_menu_donate_troops",
                 optionText: "{=!}Donate Troops",
                 condition: delegate (MenuCallbackArgs args) {
-                    args.optionLeaveType = GameMenuOption.LeaveType.ForceToGiveTroops;
+                    args.optionLeaveType = GameMenuOption.LeaveType.Manage;
                     return true;
                 },
                 consequence: MenuConsequenceForDonateTroops,
@@ -65,7 +65,7 @@ namespace StorageVillage.src.behavior
                 optionId: "storage_village_menu_donate_prisoner",
                 optionText: "{=!}Donate Prisoners",
                 condition: delegate (MenuCallbackArgs args) {
-                    args.optionLeaveType = GameMenuOption.LeaveType.ForceToGiveTroops;
+                    args.optionLeaveType = GameMenuOption.LeaveType.Manage;
                     return true;
                 },
                 consequence: MenuConsequenceForDonatePrisoner,
@@ -84,7 +84,7 @@ namespace StorageVillage.src.behavior
             );
         }
 
-        public static void TroopMenuInit(MenuCallbackArgs args)
+        public void TroopMenuInit(MenuCallbackArgs args)
         {
             args.MenuTitle = new TextObject("{=!}Troops Management");
         }
