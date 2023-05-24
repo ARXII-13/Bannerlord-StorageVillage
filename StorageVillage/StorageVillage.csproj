@@ -221,8 +221,10 @@
   </ItemGroup>
   <ItemGroup />
   <ItemGroup>
-    <Content Include="ModuleData\Languages\std_module_strings_xml.xml" />
-    <Content Include="ModuleData\module_strings.xml" />
+    <Content Include="Module\ModuleData\Languages\std_module_strings_xml.xml" />
+    <Content Include="Module\ModuleData\module_strings.xml" />
+    <Content Include="Module\ModuleData\UnitUpgrade.xml" />
+    <Content Include="Module\SubModule.xml" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

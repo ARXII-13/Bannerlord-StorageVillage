@@ -10,6 +10,7 @@ using System.Collections.Generic;
 using TaleWorlds.CampaignSystem.ViewModelCollection;
 using TaleWorlds.Localization;
 using TaleWorlds.CampaignSystem.Encyclopedia;
+using TaleWorlds.Library;
 
 namespace StorageVillage.src.behavior
 {
@@ -127,7 +128,7 @@ namespace StorageVillage.src.behavior
 
         private bool MenuConditionForBandit(MenuCallbackArgs args)
         {
-            args.optionLeaveType = GameMenuOption.LeaveType.RansomAndBribe;
+            args.optionLeaveType = GameMenuOption.LeaveType.LeadAssault;
             return true;
         }
 
@@ -152,7 +153,7 @@ namespace StorageVillage.src.behavior
                 options.Add(new InquiryElement(settlement, settlement.Name.ToString(), new ImageIdentifier(ImageIdentifierType.Null)));
             }
 
-            InformationManager.ShowMultiSelectionInquiry(new MultiSelectionInquiryData(
+            MBInformationManager.ShowMultiSelectionInquiry(new MultiSelectionInquiryData(
                 titleText: "Set Target Settlement",
                 descriptionText: "Please select the target settlement for the bandits to patrol:",
                 inquiryElements: options,
@@ -179,7 +180,7 @@ namespace StorageVillage.src.behavior
                 options.Add(new InquiryElement(party, party.Name.ToString(), new ImageIdentifier(CampaignUIHelper.GetCharacterCode(party.LeaderHero.CharacterObject, false))));
             }
 
-            InformationManager.ShowMultiSelectionInquiry(new MultiSelectionInquiryData(
+            MBInformationManager.ShowMultiSelectionInquiry(new MultiSelectionInquiryData(
                 titleText: "Set Target Party",
                 descriptionText: "Please select the target party for the bandits to engage:",
                 inquiryElements: options,
@@ -278,12 +279,12 @@ namespace StorageVillage.src.behavior
 
             if (targetSettlement != null)
             {
-                party.SetMovePatrolAroundSettlement(targetSettlement);
+                party.Ai.SetMovePatrolAroundSettlement(targetSettlement);
             }
 
             if (targetParty != null)
             {
-                party.SetMoveGoAroundParty(targetParty);
+                party.Ai.SetMoveGoAroundParty(targetParty);
             }
         }
     }

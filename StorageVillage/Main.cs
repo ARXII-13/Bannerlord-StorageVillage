@@ -2,6 +2,7 @@
 using StorageVillage.src.model;
 using TaleWorlds.CampaignSystem;
 using TaleWorlds.Core;
+using TaleWorlds.Library;
 using TaleWorlds.Localization;
 using TaleWorlds.MountAndBlade;
 

@@ -9,6 +9,7 @@ using TaleWorlds.CampaignSystem.Party;
 using System.Collections.Generic;
 using TaleWorlds.CampaignSystem.CharacterDevelopment;
 using System.Linq;
+using TaleWorlds.Library;
 
 namespace StorageVillage.src.behavior
 {
