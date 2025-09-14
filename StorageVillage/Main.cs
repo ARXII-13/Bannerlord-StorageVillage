@@ -1,4 +1,5 @@
-﻿using StorageVillage.src.behavior;
+﻿using System;
+using StorageVillage.src.behavior;
 using StorageVillage.src.model;
 using TaleWorlds.CampaignSystem;
 using TaleWorlds.Core;
@@ -15,8 +16,10 @@ namespace StorageVillage
         protected override void OnSubModuleLoad()
         {
             base.OnSubModuleLoad();
-
-            //this.testCommand();
+            InformationManager.DisplayMessage(new InformationMessage($"Module {ModId} loaded"));
+            System.Diagnostics.Debug.WriteLine("Debugger is attached");
+            Console.WriteLine("Console is working");
+            //throw new Exception("Test Exception");
         }
 
         protected override void OnSubModuleUnloaded()
@@ -65,6 +68,3 @@ namespace StorageVillage
 //    2. Merge Bandit Units and expose the threhold that as a user settings
 //    3. Add a option to allow the town/castle to not recruit militia 
 //    4. Increase workshop limit and can still have it during a war
-
-//xcopy "F:\StorageVillage\StorageVillage\ModuleData" "F:\SteamLibrary\steamapps\common\Mount & Blade II Bannerlord\Modules\StorageVillage\ModuleData" / E / I
-//xcopy "F:\StorageVillage\StorageVillage\SubModule.xml" "F:\SteamLibrary\steamapps\common\Mount & Blade II Bannerlord\Modules\StorageVillage\SubModule.xml*"

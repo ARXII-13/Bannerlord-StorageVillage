@@ -11,6 +11,8 @@ namespace StorageVillage.src.behavior
 {
     public class SettlementBehavior : CampaignBehaviorBase
     {
+        private string[] SETTLEMENT_OBJECT_TO_SUPPORT = new string[] { "town", "castle" };
+
         private ItemRoster roster;
 
         public override void RegisterEvents()
@@ -31,8 +33,8 @@ namespace StorageVillage.src.behavior
         private void AddMenus(CampaignGameStarter campaignGameStarter)
         {
             campaignGameStarter.AddGameMenu(
-                menuId: Constants.MAIN_MENU_ID, 
-                menuText: "Storage", 
+                menuId: Constants.MAIN_MENU_ID,
+                menuText: "Storage",
                 initDelegate: new OnInitDelegate(StorageMenuInit)
             );
 
@@ -40,7 +42,8 @@ namespace StorageVillage.src.behavior
                 menuId: Constants.MAIN_MENU_ID,
                 optionId: "storage_village_menu_inventory",
                 optionText: "{=!}Inventory",
-                condition: delegate (MenuCallbackArgs args) {
+                condition: delegate (MenuCallbackArgs args)
+                {
                     args.optionLeaveType = GameMenuOption.LeaveType.Manage;
                     return true;
                 },
@@ -89,15 +92,16 @@ namespace StorageVillage.src.behavior
                 index: -1
              );
 
-            campaignGameStarter.AddGameMenuOption(
-                menuId: "town",
-                optionId: Constants.MAIN_MENU_ID,
-                optionText: "{=!}Storage Village",
-                condition: MenuConditionForStorageMenu,
-                consequence: MenuConsequenceForStorage,
-                isLeave: false,
-                index: -2
-            );
+            foreach (string menuId in SETTLEMENT_OBJECT_TO_SUPPORT)
+            { 
+                campaignGameStarter.AddGameMenuOption(
+                    menuId: menuId,
+                    optionId: Constants.MAIN_MENU_ID,
+                    optionText: "{=!}Storage Village",
+                    condition: MenuConditionForStorageMenu,
+                    consequence: MenuConsequenceForStorage
+                );
+            }
         }
 
         public static void StorageMenuInit(MenuCallbackArgs args)
@@ -130,7 +134,8 @@ namespace StorageVillage.src.behavior
 
         private void MenuConsequenceForInventory(MenuCallbackArgs args)
         {
-            if (roster == null) {
+            if (roster == null)
+            {
                 roster = new ItemRoster();
             }
 

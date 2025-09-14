@@ -25,7 +25,7 @@ namespace StorageVillage.src.behavior
         private const string BANK_INFO_BALANCE_TEXT_VARIABLE = "BANK_INFO_BALANCE";
         private const string BANK_RESULT_TEXT_VARIABLE = "BANK_INFO";
 
-        private const double WEEKLY_BASE_INTEREST_RATE = 0.005;
+        private const double WEEKLY_BASE_INTEREST_RATE = 0.002;
         private const double TRADE_SKILL_PROFIT_MULTIPLIER = 1;
 
         private const string MONEY_ICON = "<img src=\"General\\Icons\\Coin@2x\" extend=\"8\">";
@@ -315,7 +315,7 @@ namespace StorageVillage.src.behavior
 
             foreach (Settlement settlement in settlements) {
                 if (settlement.IsTown ) {
-                    totalProsperous += settlement.Prosperity;
+                    totalProsperous += settlement.Town.Prosperity;
                     numOfTown++;
                 }
             }

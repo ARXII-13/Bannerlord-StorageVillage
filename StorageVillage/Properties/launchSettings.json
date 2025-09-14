@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "StorageVillage": {
+      "commandName": "Project",
+      "workingDirectory": "G:\\steam\\steamapps\\common\\Mount & Blade II Bannerlord\\bin\\Win64_Shipping_Client"
+    }
+  }
+}

@@ -7,13 +7,14 @@ namespace StorageVillage.src.model
 {
     class StoragePartyLimitModel : DefaultPartySizeLimitModel
     {
+        private const int MAX_OBJECT_NUMBER = 99999;
         public override ExplainedNumber GetPartyMemberSizeLimit(PartyBase party, bool includeDescriptions = false)
         {
             ExplainedNumber baseResult = base.GetPartyMemberSizeLimit(party, includeDescriptions);
 
             if (!(party is null) && party.Name.Equals(new TextObject("Troops Storage")))
             {
-                return new ExplainedNumber(99999);
+                return new ExplainedNumber(MAX_OBJECT_NUMBER);
             }
 
             return baseResult;
@@ -25,7 +26,7 @@ namespace StorageVillage.src.model
 
             if (!(party is null) && party.Name.Equals(new TextObject("Troops Storage")))
             {
-                return new ExplainedNumber(99999);
+                return new ExplainedNumber(MAX_OBJECT_NUMBER);
             }
 
             return baseResult;

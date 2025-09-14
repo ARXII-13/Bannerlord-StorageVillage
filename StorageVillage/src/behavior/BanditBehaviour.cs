@@ -9,8 +9,6 @@ using TaleWorlds.Core;
 using System.Collections.Generic;
 using TaleWorlds.CampaignSystem.ViewModelCollection;
 using TaleWorlds.Localization;
-using TaleWorlds.CampaignSystem.Encyclopedia;
-using TaleWorlds.Library;
 
 namespace StorageVillage.src.behavior
 {
@@ -145,7 +143,7 @@ namespace StorageVillage.src.behavior
             options.Add(new InquiryElement((object)null, title, new ImageIdentifier(ImageIdentifierType.Null)));
 
             List<Settlement> settlements =  Settlement.FindAll(settlement =>
-                settlement.IsCastle || settlement.IsTown).ToList();
+                settlement.IsCastle || settlement.IsTown || settlement.IsVillage).ToList();
             settlements.Sort((Settlement x, Settlement y) => x.Name.ToString().CompareTo(y.Name.ToString()));
 
             foreach (Settlement settlement in settlements)
@@ -159,6 +157,7 @@ namespace StorageVillage.src.behavior
                 inquiryElements: options,
                 isExitShown: true,
                 maxSelectableOptionCount: 1,
+                minSelectableOptionCount: 1,
                 affirmativeText: "Confirm",
                 negativeText: "Cancel",
                 affirmativeAction: new Action<List<InquiryElement>>(SelectedTargetSettlement),
@@ -171,13 +170,27 @@ namespace StorageVillage.src.behavior
             List<InquiryElement> options = new List<InquiryElement>();
             string title = new TextObject("{=koX9okuG}None").ToString();
             options.Add(new InquiryElement((object)null, title, new ImageIdentifier(ImageIdentifierType.Null)));
-
             List<MobileParty> parties = MobileParty.AllLordParties.ToList();
             parties.Sort((MobileParty x, MobileParty y) => x.Name.ToString().CompareTo(y.Name.ToString()));
-
             foreach (MobileParty party in parties)
             {
-                options.Add(new InquiryElement(party, party.Name.ToString(), new ImageIdentifier(CampaignUIHelper.GetCharacterCode(party.LeaderHero.CharacterObject, false))));
+                try
+                {
+                    CharacterObject characterObject = party.LeaderHero.CharacterObject;
+                    if (characterObject != null)
+                    { 
+                        CharacterCode characterCode = CampaignUIHelper.GetCharacterCode(party.LeaderHero.CharacterObject, false);
+                        if (characterCode != null)
+                        {
+                            options.Add(new InquiryElement(party, party.Name.ToString(), new ImageIdentifier(characterCode)));
+                        }
+                    }
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine(e);
+                }
+
             }
 
             MBInformationManager.ShowMultiSelectionInquiry(new MultiSelectionInquiryData(
@@ -186,6 +199,7 @@ namespace StorageVillage.src.behavior
                 inquiryElements: options,
                 isExitShown: true,
                 maxSelectableOptionCount: 1,
+                minSelectableOptionCount: 1,
                 affirmativeText: "Confirm",
                 negativeText: "Cancel",
                 affirmativeAction: new Action<List<InquiryElement>>(SelectedTargetParty),
