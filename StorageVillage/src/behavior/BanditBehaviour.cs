@@ -52,7 +52,7 @@ namespace StorageVillage.src.behavior
             campaignGameStarter.AddGameMenuOption(
                 menuId: Constants.BANDIT_MENU_ID,
                 optionId: "storage_village_menu_bandit_target_settlement",
-                optionText: "{=!}Set Target Settlement to Patrol",
+                optionText: "{=SET_BANDIT_TARGET_SETTLEMENT}Set Target Settlement to Patrol",
                 condition: MenuConditionForBandit,
                 consequence: MenuConsequenceForTargetSettlement,
                 isLeave: false,
@@ -62,7 +62,7 @@ namespace StorageVillage.src.behavior
             campaignGameStarter.AddGameMenuOption(
                 menuId: Constants.BANDIT_MENU_ID,
                 optionId: "storage_village_menu_bandit_target_party",
-                optionText: "{=!}Set Target Party to Engage",
+                optionText: "{=SET_BANDIT_TARGET_PARTY}Set Target Party to Engage",
                 condition: MenuConditionForBandit,
                 consequence: MenuConsequenceForTargetParty,
                 isLeave: false,
@@ -72,7 +72,7 @@ namespace StorageVillage.src.behavior
             campaignGameStarter.AddGameMenuOption(
                 menuId: Constants.BANDIT_MENU_ID,
                 optionId: "storage_village_bandit_leave",
-                optionText: "{=!}Back to Storage",
+                optionText: "{=BACK_TO_STORAGE}Back to Storage",
                 condition: MenuConditionForLeave,
                 consequence: MenuConsequenceForLeave,
                 isLeave: false,
@@ -88,7 +88,7 @@ namespace StorageVillage.src.behavior
             campaignGameStarter.AddGameMenuOption(
                 menuId: Constants.BANDIT_RESULT_MENU_ID,
                 optionId: "storage_village_bandit_result_leave",
-                optionText: "{=!}Back to Bandit Menu",
+                optionText: "{=BACK_TO_BANDIT_MENU}Back to Bandit Menu",
                 condition: MenuConditionForLeave,
                 consequence: MenuConsequenceForBack,
                 isLeave: false,
@@ -98,7 +98,7 @@ namespace StorageVillage.src.behavior
 
         public void HandleBanditMenuInit(MenuCallbackArgs args)
         {
-            args.MenuTitle = new TextObject("{=!}Bandit");
+            args.MenuTitle = new TextObject("{=BANDIT}Bandit");
             UpdateBanditDescription();
         }
 
@@ -106,21 +106,34 @@ namespace StorageVillage.src.behavior
         {
             if (targetParty != null)
             {
+                TextObject optionText = new TextObject(
+                    "{=BANDIT_ENGAGE_PARTY}The bandits are engaging {PARTY_NAME}"
+                );
+                optionText.SetTextVariable("PARTY_NAME", targetParty.Name);
+
                 MBTextManager.SetTextVariable(
                     variableName: BANDIT_INFO_TEXT_VARIABLE,
-                    text: new TextObject($"The bandits are engaging {targetParty.Name}."));
+                    text: optionText
+                );
             }
             else if (targetSettlement != null)
             {
+                TextObject optionText = new TextObject(
+                    "{=BANDIT_ENGAGE_SETTLEMENT}The bandits are engaging {SETTLEMENT_NAME}"
+                );
+                optionText.SetTextVariable("SETTLEMENT_NAME", targetSettlement.Name);
+
                 MBTextManager.SetTextVariable(
                     variableName: BANDIT_INFO_TEXT_VARIABLE,
-                    text: new TextObject($"The bandits are patrolling around {targetSettlement.Name}."));
+                    text: optionText
+                );
             }
             else
             {
                 MBTextManager.SetTextVariable(
                     variableName: BANDIT_INFO_TEXT_VARIABLE,
-                    text: new TextObject($"The bandits have no specific objective."));
+                    text: new TextObject("{=BANDIT_NO_TARGET}The bandits have no specific target")
+                );
             }
         }
 
@@ -142,7 +155,7 @@ namespace StorageVillage.src.behavior
             string title = new TextObject("{=koX9okuG}None").ToString();
             options.Add(new InquiryElement((object)null, title, new ImageIdentifier(ImageIdentifierType.Null)));
 
-            List<Settlement> settlements =  Settlement.FindAll(settlement =>
+            List<Settlement> settlements = Settlement.FindAll(settlement =>
                 settlement.IsCastle || settlement.IsTown || settlement.IsVillage).ToList();
             settlements.Sort((Settlement x, Settlement y) => x.Name.ToString().CompareTo(y.Name.ToString()));
 
@@ -152,14 +165,14 @@ namespace StorageVillage.src.behavior
             }
 
             MBInformationManager.ShowMultiSelectionInquiry(new MultiSelectionInquiryData(
-                titleText: "Set Target Settlement",
-                descriptionText: "Please select the target settlement for the bandits to patrol:",
+                titleText: new TextObject("{=SET_TARGET_SETTLEMENT_TITLE}Set Target Settlement").ToString(),
+                descriptionText: new TextObject("{=SET_TARGET_SETTLEMENT_DESCRIPTION}Please select the target settlement for the bandits to patrol:").ToString(),
                 inquiryElements: options,
                 isExitShown: true,
                 maxSelectableOptionCount: 1,
                 minSelectableOptionCount: 1,
-                affirmativeText: "Confirm",
-                negativeText: "Cancel",
+                affirmativeText: new TextObject("{=CONFIRM}Confirm").ToString(),
+                negativeText: new TextObject("{=CANCEL}Cancel").ToString(),
                 affirmativeAction: new Action<List<InquiryElement>>(SelectedTargetSettlement),
                 negativeAction: null
             ));
@@ -178,7 +191,7 @@ namespace StorageVillage.src.behavior
                 {
                     CharacterObject characterObject = party.LeaderHero.CharacterObject;
                     if (characterObject != null)
-                    { 
+                    {
                         CharacterCode characterCode = CampaignUIHelper.GetCharacterCode(party.LeaderHero.CharacterObject, false);
                         if (characterCode != null)
                         {
@@ -194,14 +207,14 @@ namespace StorageVillage.src.behavior
             }
 
             MBInformationManager.ShowMultiSelectionInquiry(new MultiSelectionInquiryData(
-                titleText: "Set Target Party",
-                descriptionText: "Please select the target party for the bandits to engage:",
+                titleText: new TextObject("{=SET_TARGET_PARTY_TITLE}Set Target Party").ToString(),
+                descriptionText: new TextObject("{=SET_TARGET_PARTY_DESCRIPTION}Please select the target party for the bandits to engage:").ToString(),
                 inquiryElements: options,
                 isExitShown: true,
                 maxSelectableOptionCount: 1,
                 minSelectableOptionCount: 1,
-                affirmativeText: "Confirm",
-                negativeText: "Cancel",
+                affirmativeText: new TextObject("{=CONFIRM}Confirm").ToString(),
+                negativeText: new TextObject("{=CANCEL}Cancel").ToString(),
                 affirmativeAction: new Action<List<InquiryElement>>(SelectedTargetParty),
                 negativeAction: null
             ));
@@ -219,24 +232,43 @@ namespace StorageVillage.src.behavior
 
         private void HandleBanditResultMenuInit(MenuCallbackArgs args)
         {
-            args.MenuTitle = new TextObject("{=!}Bandit Target Set");
+            args.MenuTitle = new TextObject("{=SET_BANDIT_TARGET}Set Bandit Target");
             UpdateBanditResultDescription();
         }
 
         private void UpdateBanditResultDescription()
         {
-            if (targetParty != null) {
+            if (targetParty != null)
+            {
+                TextObject optionText = new TextObject(
+                    "{=BANDIT_ENGAGE_PARTY}The bandits are engaging {PARTY_NAME}."
+                );
+                optionText.SetTextVariable("PARTY_NAME", targetParty.Name);
                 MBTextManager.SetTextVariable(
                     variableName: BANDIT_TARGET_RESULT_TEXT_VARIABLE,
-                    text: new TextObject($"The new target party is set! \n \nThe bandits will try to enagage {targetParty.Name}."));
-            } else if (targetSettlement != null) {
+                    text: optionText
+                );
+            }
+            else if (targetSettlement != null)
+            {
+                TextObject optionText = new TextObject(
+                    "{=BANDIT_ENGAGE_SETTLEMENT}The bandits are engaging {SETTLEMENT_NAME}."
+                );
+                optionText.SetTextVariable("SETTLEMENT_NAME", targetSettlement.Name);
                 MBTextManager.SetTextVariable(
                     variableName: BANDIT_TARGET_RESULT_TEXT_VARIABLE,
-                    text: new TextObject($"The new target settlement is set! \n \nThe bandits will try to patrol around {targetSettlement.Name}."));
-            } else {
+                    text: optionText
+                );
+            }
+            else
+            {
+                TextObject optionText = new TextObject(
+                    "{=BANDIT_TARGET_RESET}The target is reset! \n \nThe bandits will go back to their original targets."
+                );
                 MBTextManager.SetTextVariable(
                     variableName: BANDIT_TARGET_RESULT_TEXT_VARIABLE,
-                    text: new TextObject($"The target is reset! \n \nThe bandits will go back to their original targets."));
+                    text: optionText
+                );
             }
         }
 
@@ -246,7 +278,8 @@ namespace StorageVillage.src.behavior
             {
                 targetSettlement = null;
             }
-            else {
+            else
+            {
                 if (element.First() == null)
                 {
                     targetSettlement = null;
@@ -268,7 +301,8 @@ namespace StorageVillage.src.behavior
             {
                 targetParty = null;
             }
-            else {
+            else
+            {
                 if (element.First() == null)
                 {
                     targetSettlement = null;
@@ -287,7 +321,8 @@ namespace StorageVillage.src.behavior
 
         private void HandleBanditDailyTickEvent(MobileParty party)
         {
-            if (!party.IsBandit) {
+            if (!party.IsBandit)
+            {
                 return;
             }
 

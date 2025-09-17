@@ -29,16 +29,17 @@ namespace StorageVillage.src.behavior
         private void AddMenus(CampaignGameStarter campaignGameStarter)
         {
             campaignGameStarter.AddGameMenu(
-                menuId: Constants.TROOP_MENU_ID, 
-                menuText: "Troops Management", 
+                menuId: Constants.TROOP_MENU_ID,
+                menuText: "{=TROOP_MENU}Troops Management",
                 initDelegate: new OnInitDelegate(TroopMenuInit)
             );
 
             campaignGameStarter.AddGameMenuOption(
                 menuId: Constants.TROOP_MENU_ID,
                 optionId: "storage_village_menu_troop",
-                optionText: "{=!}Troops",
-                condition: delegate (MenuCallbackArgs args) {
+                optionText: "{=TROOP_STORAGE}Troops Storage",
+                condition: delegate (MenuCallbackArgs args)
+                {
                     args.optionLeaveType = GameMenuOption.LeaveType.TroopSelection;
                     return true;
                 },
@@ -50,8 +51,9 @@ namespace StorageVillage.src.behavior
             campaignGameStarter.AddGameMenuOption(
                 menuId: Constants.TROOP_MENU_ID,
                 optionId: "storage_village_menu_donate_troops",
-                optionText: "{=!}Donate Troops",
-                condition: delegate (MenuCallbackArgs args) {
+                optionText: "{=DONATE_TROOPS}Donate Troops",
+                condition: delegate (MenuCallbackArgs args)
+                {
                     args.optionLeaveType = GameMenuOption.LeaveType.Manage;
                     return true;
                 },
@@ -63,8 +65,9 @@ namespace StorageVillage.src.behavior
             campaignGameStarter.AddGameMenuOption(
                 menuId: Constants.TROOP_MENU_ID,
                 optionId: "storage_village_menu_donate_prisoner",
-                optionText: "{=!}Donate Prisoners",
-                condition: delegate (MenuCallbackArgs args) {
+                optionText: "{=DONATE_PRISONERS}Donate Prisoners",
+                condition: delegate (MenuCallbackArgs args)
+                {
                     args.optionLeaveType = GameMenuOption.LeaveType.Manage;
                     return true;
                 },
@@ -76,7 +79,7 @@ namespace StorageVillage.src.behavior
             campaignGameStarter.AddGameMenuOption(
                 menuId: Constants.TROOP_MENU_ID,
                 optionId: "storage_village_troop_leave",
-                optionText: "{=!}Back to Storage",
+                optionText: "{=BACK_TO_STORAGE_MENU}Back to Storage",
                 condition: MenuConditionForLeave,
                 consequence: MenuConsequenceForLeave,
                 isLeave: false,
@@ -86,7 +89,7 @@ namespace StorageVillage.src.behavior
 
         public void TroopMenuInit(MenuCallbackArgs args)
         {
-            args.MenuTitle = new TextObject("{=!}Troops Management");
+            args.MenuTitle = new TextObject("{=TROOP_MENU}Troops Management");
         }
 
         private bool MenuConditionForLeave(MenuCallbackArgs args)
@@ -108,7 +111,7 @@ namespace StorageVillage.src.behavior
                 troopsParty = new MobileParty();
             }
 
-            troopsParty.SetCustomName(new TextObject("Troops Storage"));
+            troopsParty.SetCustomName(new TextObject("{=TROOP_STORAGE}Troops Storage"));
             PartyScreenManager.OpenScreenAsManageTroopsAndPrisoners(troopsParty);
         }
 

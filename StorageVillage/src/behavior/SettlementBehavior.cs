@@ -34,14 +34,14 @@ namespace StorageVillage.src.behavior
         {
             campaignGameStarter.AddGameMenu(
                 menuId: Constants.MAIN_MENU_ID,
-                menuText: "Storage",
+                menuText: "{=STORAGE_MENU}Storage",
                 initDelegate: new OnInitDelegate(StorageMenuInit)
             );
 
             campaignGameStarter.AddGameMenuOption(
                 menuId: Constants.MAIN_MENU_ID,
                 optionId: "storage_village_menu_inventory",
-                optionText: "{=!}Inventory",
+                optionText: "{=INVENTORY_MENU}Inventory",
                 condition: delegate (MenuCallbackArgs args)
                 {
                     args.optionLeaveType = GameMenuOption.LeaveType.Manage;
@@ -55,7 +55,7 @@ namespace StorageVillage.src.behavior
             campaignGameStarter.AddGameMenuOption(
                  menuId: Constants.MAIN_MENU_ID,
                  optionId: Constants.TROOP_MENU_ID,
-                 optionText: "{=!}Troops Management",
+                 optionText: "{=TROOP_MENU}Troops Management",
                  condition: MenuConditionForSubMenu,
                  consequence: MenuConsequenceForTroop,
                  isLeave: false,
@@ -65,7 +65,7 @@ namespace StorageVillage.src.behavior
             campaignGameStarter.AddGameMenuOption(
                 menuId: Constants.MAIN_MENU_ID,
                 optionId: Constants.BANK_MENU_ID,
-                optionText: "{=!}National Bank",
+                optionText: "{=BANK_MENU}Calradia Central Bank",
                 condition: MenuConditionForSubMenu,
                 consequence: MenuConsequenceForBank,
                 isLeave: false,
@@ -75,7 +75,7 @@ namespace StorageVillage.src.behavior
             campaignGameStarter.AddGameMenuOption(
                 menuId: Constants.MAIN_MENU_ID,
                 optionId: Constants.BANDIT_MENU_ID,
-                optionText: "{=!}Bandit Management",
+                optionText: "{=BANDIT_MENU}Bandit Management",
                 condition: MenuConditionForSubMenu,
                 consequence: MenuConsequenceForBandit,
                 isLeave: false,
@@ -85,7 +85,7 @@ namespace StorageVillage.src.behavior
             campaignGameStarter.AddGameMenuOption(
                 menuId: Constants.MAIN_MENU_ID,
                 optionId: "storage_village_menu_leave",
-                optionText: "{=!}Back to town center",
+                optionText: "{=BACK_TO_TOWN_CENTER}Back to town center",
                 condition: MenuConditionForLeave,
                 consequence: MenuConsequenceForLeave,
                 isLeave: false,
@@ -93,11 +93,11 @@ namespace StorageVillage.src.behavior
              );
 
             foreach (string menuId in SETTLEMENT_OBJECT_TO_SUPPORT)
-            { 
+            {
                 campaignGameStarter.AddGameMenuOption(
                     menuId: menuId,
                     optionId: Constants.MAIN_MENU_ID,
-                    optionText: "{=!}Storage Village",
+                    optionText: "{=STORAGE_MENU}Storage",
                     condition: MenuConditionForStorageMenu,
                     consequence: MenuConsequenceForStorage
                 );
@@ -106,7 +106,7 @@ namespace StorageVillage.src.behavior
 
         public static void StorageMenuInit(MenuCallbackArgs args)
         {
-            args.MenuTitle = new TextObject("{=!}Storage");
+            args.MenuTitle = new TextObject("{=STORAGE_MENU}Storage");
         }
 
         private bool MenuConditionForStorageMenu(MenuCallbackArgs args)
