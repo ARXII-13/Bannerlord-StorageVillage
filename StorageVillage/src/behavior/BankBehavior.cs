@@ -62,7 +62,7 @@ namespace StorageVillage.src.behavior
             campaignGameStarter.AddGameMenuOption(
                 menuId: Constants.BANK_MENU_ID,
                 optionId: "storage_village_bank_deposit",
-                optionText: "{=!}Deposit",
+                optionText: "{=DEPOSIT}Deposit",
                 condition: MenuConditionForBankAction,
                 consequence: MenuConsequenceForDeposit,
                 isLeave: false,
@@ -72,7 +72,7 @@ namespace StorageVillage.src.behavior
             campaignGameStarter.AddGameMenuOption(
                 menuId: Constants.BANK_MENU_ID,
                 optionId: "storage_village_bank_withdraw",
-                optionText: "{=!}Withdraw",
+                optionText: "{=WITHDRAW}Withdraw",
                 condition: MenuConditionForBankAction,
                 consequence: MenuConsequenceForWithdraw,
                 isLeave: false,
@@ -82,7 +82,7 @@ namespace StorageVillage.src.behavior
             campaignGameStarter.AddGameMenuOption(
                 menuId: Constants.BANK_MENU_ID,
                 optionId: "storage_village_bank_leave",
-                optionText: "{=!}Back to Storage",
+                optionText: "{=BACK_TO_STORAGE_MENU}Back to Storage",
                 condition: MenuConditionForLeave,
                 consequence: MenuConsequenceForLeave,
                 isLeave: false,
@@ -98,7 +98,7 @@ namespace StorageVillage.src.behavior
             campaignGameStarter.AddGameMenuOption(
                 menuId: Constants.BANK_RESULT_MENU_ID,
                 optionId: "storage_village_bank_result_leave",
-                optionText: "{=!}Back to Bank Menu",
+                optionText: "{=BACK_TO_BANK_MENU}Back to Bank Menu",
                 condition: MenuConditionForLeave,
                 consequence: MenuConsequenceForBack,
                 isLeave: false,
@@ -113,44 +113,64 @@ namespace StorageVillage.src.behavior
             UpdateBankDescription();
         }
 
-        private void UpdateBankDescription() {
+        private void UpdateBankDescription()
+        {
             MBTextManager.SetTextVariable(
                 variableName: BANK_INFO_TITLE_TEXT_VARIABLE,
-                text: new TextObject($"National Bank")
+                text: new TextObject("{=CALRADIA_CENTRAL_BANK}Calradia Central Bank")
             );
 
+            var balanceText = new TextObject("{=ACCOUNT_BALANCE}Account Balance:\n{BALANCE} {ICON}");
+            balanceText.SetTextVariable("BALANCE", currentBalance.ToString("N0"));
+            balanceText.SetTextVariable("ICON", MONEY_ICON);
             MBTextManager.SetTextVariable(
                 variableName: BANK_INFO_BALANCE_TEXT_VARIABLE,
-                text: new TextObject($"Account Balance:\n{currentBalance:N0} {MONEY_ICON}")
+                text: balanceText
             );
 
+            var currentInterestText = new TextObject("{=CURRENT_INTEREST}Current Interest:\n{INTEREST}%");
+            var interestRatePercentage = currentWeeklyInterest * 100;
+            currentInterestText.SetTextVariable("INTEREST", interestRatePercentage.ToString("N2"));
             MBTextManager.SetTextVariable(
                 variableName: BANK_INFO_INTEREST_RATE_TEXT_VARIABLE,
-                text: new TextObject($"Current Interest:\n{currentWeeklyInterest:N0}%")
+                text: currentInterestText
             );
-
+            int perAmount = (int)Math.Round(100 / currentWeeklyInterest);
+            TextObject projectedReturnText = new TextObject(
+                "{=CURRENT_RETURN_PROJECTION}Current Weekly return:\n{INTEREST} {ICON} for every {PERAMOUNT} {ICON} invested"
+            );
+            projectedReturnText.SetTextVariable("INTEREST", 100.ToString("N0"));
+            projectedReturnText.SetTextVariable("PERAMOUNT", perAmount.ToString("N0"));
+            projectedReturnText.SetTextVariable("ICON", MONEY_ICON);
             MBTextManager.SetTextVariable(
                 variableName: BANK_INFO_RETURN_TEXT_VARIABLE,
-                text: new TextObject($"Current Weekly return:\n100 {MONEY_ICON} for every {Math.Round(100 / currentWeeklyInterest):N0} {MONEY_ICON} invested")
+                text: projectedReturnText
             );
 
             MBTextManager.SetTextVariable(
                 variableName: BANK_INFO_TEXT_VARIABLE,
-                text: $"{{{BANK_INFO_TITLE_TEXT_VARIABLE}}}\n \n{{{BANK_INFO_BALANCE_TEXT_VARIABLE}}}\n \n{{{BANK_INFO_RETURN_TEXT_VARIABLE}}}\n \n{{{BANK_INFO_INTEREST_RATE_TEXT_VARIABLE}}}"
+                text: $"{{{BANK_INFO_TITLE_TEXT_VARIABLE}}}\n \n{{{BANK_INFO_BALANCE_TEXT_VARIABLE}}}\n \n{{{BANK_INFO_INTEREST_RATE_TEXT_VARIABLE}}}\n \n{{{BANK_INFO_RETURN_TEXT_VARIABLE}}}"
             );
         }
 
         private void HandleBankResultMenuInit(MenuCallbackArgs args)
         {
-            args.MenuTitle = new TextObject("{=!}Bank Result");
+            args.MenuTitle = new TextObject("{=BANK_RESULT}Bank Result");
             UpdateBankResultDescription();
         }
 
         private void UpdateBankResultDescription()
         {
+            TextObject resultText = new TextObject(
+                "{=BANK_RESULT_DESCRIPTION}Action completed successfully!\n\nThe current balance is:\n{BALANCE} {ICON}"
+            );
+            resultText.SetTextVariable("BALANCE", currentBalance.ToString("N0"));
+            resultText.SetTextVariable("ICON", MONEY_ICON);
             MBTextManager.SetTextVariable(
                 variableName: BANK_RESULT_TEXT_VARIABLE,
-                text: new TextObject($"Action completed successfully! \n \nThe current balance is :\n{currentBalance:N0} {MONEY_ICON}"));
+                text: resultText
+            );
+
         }
 
         private bool MenuConditionForLeave(MenuCallbackArgs args)
@@ -168,12 +188,12 @@ namespace StorageVillage.src.behavior
         private void MenuConsequenceForDeposit(MenuCallbackArgs args)
         {
             InformationManager.ShowTextInquiry(new TextInquiryData(
-                titleText: "Deposit", 
-                text: "Please input the amount of denar that you would like to deposit:",
+                titleText: new TextObject("{=DEPOSIT}Deposit").ToString(),
+                text: new TextObject("{=DEPOSIT_DESCRIPTION}Please input the amount of denar that you would like to deposit:").ToString(),
                 isAffirmativeOptionShown: true,
                 isNegativeOptionShown: true,
-                affirmativeText: "Confirm",
-                negativeText: "Cancel",
+                affirmativeText: new TextObject("{=CONFIRM}Confirm").ToString(),
+                negativeText: new TextObject("{=CANCEL}Cancel").ToString(),
                 affirmativeAction: new Action<string>(DepositFromBank),
                 negativeAction: null,
                 defaultInputText: "0",
@@ -198,7 +218,7 @@ namespace StorageVillage.src.behavior
             int depositAmount = ConvertStringToNumber(amount);
             if (currentOwnedMoney < depositAmount)
             {
-                list.Add(new TextObject("{=!}You do not have sufficient balance to deposit!"));
+                list.Add(new TextObject("{=DEPOSIT_INSUFFICIENT_BALANCE}You do not have sufficient balance to deposit!"));
             }
 
             return ConvertListToTuple(list);
@@ -207,12 +227,12 @@ namespace StorageVillage.src.behavior
         private void MenuConsequenceForWithdraw(MenuCallbackArgs args)
         {
             InformationManager.ShowTextInquiry(new TextInquiryData(
-                 titleText: "Deposit",
-                 text: "Please input the amount of denar that you would like to withdraw:",
+                 titleText: new TextObject("{=WITHDRAW}Withdraw").ToString(),
+                 text: new TextObject("{=WITHDRAW_DESCRIPTION}Please input the amount of denar that you would like to withdraw:").ToString(),
                  isAffirmativeOptionShown: true,
                  isNegativeOptionShown: true,
-                 affirmativeText: "Confirm",
-                 negativeText: "Cancel",
+                 affirmativeText: new TextObject("{=CONFIRM}Confirm").ToString(),
+                 negativeText: new TextObject("{=CANCEL}Cancel").ToString(),
                  affirmativeAction: new Action<string>(WithdrawFromBank),
                  negativeAction: null,
                  defaultInputText: "0",
@@ -236,7 +256,7 @@ namespace StorageVillage.src.behavior
             int withdrawAmount = ConvertStringToNumber(amount);
             if (currentBalance < withdrawAmount)
             {
-                list.Add(new TextObject("{=!}You do not have sufficient balance to withdraw!"));
+                list.Add(new TextObject("{=WITHDRAW_INSUFFICIENT_BALANCE}You do not have sufficient balance to withdraw!"));
             }
 
             return ConvertListToTuple(list);
@@ -275,7 +295,8 @@ namespace StorageVillage.src.behavior
             return list;
         }
 
-        public static Tuple<bool, string> ConvertListToTuple(List<TextObject> list) {
+        public static Tuple<bool, string> ConvertListToTuple(List<TextObject> list)
+        {
             string item = string.Empty;
             bool item2 = list.Count == 0;
             if (list.Count == 1)
@@ -303,7 +324,14 @@ namespace StorageVillage.src.behavior
             currentBalance += interestEarned;
 
             SkillLevelingManager.OnTradeProfitMade(Clan.PlayerClan.Leader, (int)Math.Round(interestEarned * TRADE_SKILL_PROFIT_MULTIPLIER));
-            InformationManager.DisplayMessage(new InformationMessage($"Weekly interests earned: {interestEarned} {MONEY_ICON}"));
+
+            TextObject infoText = new TextObject(
+                "{=WEEKLY_INTEREST_NOTIFY}Weekly interests earned: {AMOUNT} {ICON}"
+            );
+            infoText.SetTextVariable("AMOUNT", interestEarned.ToString("N0"));
+            infoText.SetTextVariable("ICON", MONEY_ICON);
+            InformationManager.DisplayMessage(new InformationMessage(infoText.ToString()));
+
         }
 
         private double CalculateWeeklyInterest()
@@ -313,8 +341,10 @@ namespace StorageVillage.src.behavior
 
             List<Settlement> settlements = Settlement.FindAll(settlement => settlement.IsTown).ToList();
 
-            foreach (Settlement settlement in settlements) {
-                if (settlement.IsTown ) {
+            foreach (Settlement settlement in settlements)
+            {
+                if (settlement.IsTown)
+                {
                     totalProsperous += settlement.Town.Prosperity;
                     numOfTown++;
                 }
@@ -327,7 +357,6 @@ namespace StorageVillage.src.behavior
 
             // use the exponential to calculate the interest rate adjustment 
             var prosperityAdjustment = (1 - Math.Exp(-0.0008 * (averageProsperous - 2000)));
-            var tradeSkillAdjustment = (1 - Math.Exp(-0.01 * tradeLevel));
             var adjustedInterestRate = baseInterestRate * prosperityAdjustment;
 
             return adjustedInterestRate;
