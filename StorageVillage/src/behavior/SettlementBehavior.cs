@@ -1,10 +1,17 @@
-﻿using TaleWorlds.CampaignSystem;
+﻿using System;
+using System.Reflection;
+
+using TaleWorlds.CampaignSystem;
 using TaleWorlds.CampaignSystem.GameMenus;
 using TaleWorlds.Localization;
-using System;
+
 using TaleWorlds.CampaignSystem.Inventory;
 using TaleWorlds.CampaignSystem.Roster;
 using TaleWorlds.CampaignSystem.Settlements;
+using TaleWorlds.Core;
+using TaleWorlds.CampaignSystem.GameState;
+using TaleWorlds.CampaignSystem.Party;
+
 using StorageVillage.src.util;
 
 namespace StorageVillage.src.behavior
@@ -40,7 +47,7 @@ namespace StorageVillage.src.behavior
 
             campaignGameStarter.AddGameMenuOption(
                 menuId: Constants.MAIN_MENU_ID,
-                optionId: "storage_village_menu_inventory",
+                optionId: Constants.INVENTORY_MENU_ID,
                 optionText: "{=INVENTORY_MENU}Inventory",
                 condition: delegate (MenuCallbackArgs args)
                 {
@@ -80,6 +87,16 @@ namespace StorageVillage.src.behavior
                 consequence: MenuConsequenceForBandit,
                 isLeave: false,
                 index: 4
+             );
+
+            campaignGameStarter.AddGameMenuOption(
+                menuId: Constants.MAIN_MENU_ID,
+                optionId: Constants.DONATE_FOOD_MENU_ID,
+                optionText: "{=DONATE_FOOD_MENU}Donate Food to Settlement",
+                condition: MenuConditionForSubMenu,
+                consequence: MenuConsequenceForDonateFood,
+                isLeave: false,
+                index: 5
              );
 
             campaignGameStarter.AddGameMenuOption(
@@ -154,6 +171,63 @@ namespace StorageVillage.src.behavior
         private void MenuConsequenceForBandit(MenuCallbackArgs args)
         {
             GameMenu.SwitchToMenu(Constants.BANDIT_MENU_ID);
+        }
+
+        private void MenuConsequenceForDonateFood(MenuCallbackArgs args)
+        {
+            // InventoryManager.OpenScreenAsStash(newRoster);
+            // InventoryManager.OpenScreenAsTrade(newRoster, Settlement.CurrentSettlement.SettlementComponent, InventoryManager.InventoryCategoryType.Goods);
+            OpenScreenAsDonateFood();
+
+
+            // Debug.Print("MenuConsequenceForDonateFood newRoster");
+            // Debug.Print(newRoster.ToString());
+            // Debug.WriteDebugLineOnScreen(newRoster.ToString());
+        }
+
+        private void OpenScreenAsDonateFood()
+        {
+            InventoryManager inventoryManager = Campaign.Current.InventoryManager;
+            ItemRoster newRoster = new ItemRoster();
+            InventoryLogic inventoryLogic = new InventoryLogic(null);
+            inventoryLogic.Initialize(
+                newRoster,
+                MobileParty.MainParty,
+                isTrading: false,
+                isSpecialActionsPermitted: false,
+                CharacterObject.PlayerCharacter,
+                InventoryManager.InventoryCategoryType.Goods,
+                Settlement.CurrentSettlement.Town.MarketData,
+                useBasePrices: false,
+                new TextObject("{=DONATE_FOOD_TO_SETTLEMENT}Donate Food to Settlement")
+            );
+
+            FieldInfo inventroyLogicfield = typeof(InventoryManager).GetField("_inventoryLogic",
+                BindingFlags.Instance | BindingFlags.NonPublic);
+
+            inventroyLogicfield.SetValue(inventoryManager, inventoryLogic);
+
+            FieldInfo currentModeField = typeof(InventoryManager).GetField("_currentMode",
+                BindingFlags.Instance | BindingFlags.NonPublic);
+            currentModeField.SetValue(inventoryManager, InventoryMode.Stash);
+
+            inventoryLogic.SetDonateFoodFlag(true);
+            // FieldInfo isDonateFoodToSettlementField = AccessTools.Field(typeof(InventoryLogic), "_isDonateFoodToSettlement");
+            // if (inventoryLogic == null)
+            // {
+            //     System.Diagnostics.Debug.WriteLine("InventoryLogic instance is null!");
+            //     return;
+            // }
+            // System.Diagnostics.Debug.WriteLine(inventoryLogic.ToString());
+            // System.Diagnostics.Debug.WriteLine(isDonateFoodToSettlementField.ToString());
+
+            // isDonateFoodToSettlementField.SetValue(inventoryLogic, true);
+
+            // Then proceed to push the state
+            InventoryState inventoryState = Game.Current.GameStateManager.CreateState<InventoryState>();
+            inventoryState.InitializeLogic(inventoryLogic);
+
+            Game.Current.GameStateManager.PushState(inventoryState);
         }
 
         private void MenuConsequenceForLeave(MenuCallbackArgs args)

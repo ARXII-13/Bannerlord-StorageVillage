@@ -49,6 +49,9 @@
     <string id="WITHDRAW_INSUFFICIENT_BALANCE" text="You do not have sufficient balance to withdraw!"/>
     <string id="WEEKLY_INTEREST_NOTIFY" text="Weekly interests earned: {AMOUNT} {ICON}"/>
 
+    <string id="DONATE_FOOD_MENU" text="Donate Food to Settlement" />
+    <string id="DONATE_FOOD_TO_SETTLEMENT" text="Donate Food to Settlement" />
+    
     <string id="CONFIRM" text="Confirm"/>
     <string id="CANCEL" text="Cancel"/>
 

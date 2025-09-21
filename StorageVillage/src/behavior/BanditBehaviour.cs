@@ -1,14 +1,16 @@
-﻿using TaleWorlds.CampaignSystem;
-using System;
+﻿using System;
+using System.Linq;
+using System.Collections.Generic;
+
+using TaleWorlds.CampaignSystem;
 using TaleWorlds.CampaignSystem.Settlements;
 using TaleWorlds.CampaignSystem.Party;
-using System.Linq;
-using StorageVillage.src.util;
 using TaleWorlds.CampaignSystem.GameMenus;
 using TaleWorlds.Core;
-using System.Collections.Generic;
 using TaleWorlds.CampaignSystem.ViewModelCollection;
 using TaleWorlds.Localization;
+
+using StorageVillage.src.util;
 
 namespace StorageVillage.src.behavior
 {
@@ -288,6 +290,7 @@ namespace StorageVillage.src.behavior
                 else
                 {
                     Settlement settlement = element.First().Identifier as Settlement;
+                    settlement.Town.FoodStocks += 100;
                     targetSettlement = settlement;
                     targetParty = null;
                 }
