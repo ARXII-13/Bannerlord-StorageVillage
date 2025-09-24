@@ -22,7 +22,6 @@ namespace StorageVillage {
                 harmony.PatchAll();
 
                 InformationManager.DisplayMessage(new InformationMessage($"Module {ModId} loaded"));
-                System.Diagnostics.Debug.WriteLine("Debugger is attached");
             }
             catch (Exception e) {
                 Debug.PrintError(e.Message, e.StackTrace);
