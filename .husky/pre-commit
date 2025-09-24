@@ -20,3 +20,4 @@
 #echo 'Husky.Net is awesome!'
 
 dotnet format --verify-no-changes
+echo ✅Pre-commit hook completed successfully.✅
