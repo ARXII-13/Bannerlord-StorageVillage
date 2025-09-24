@@ -10,16 +10,12 @@ using TaleWorlds.Localization;
 using TaleWorlds.MountAndBlade;
 using Debug = TaleWorlds.Library.Debug;
 
-namespace StorageVillage
-{
-    public class Main : MBSubModuleBase
-    {
+namespace StorageVillage {
+    public class Main : MBSubModuleBase {
         public const string ModId = "StorageVillage";
 
-        protected override void OnSubModuleLoad()
-        {
-            try
-            {
+        protected override void OnSubModuleLoad() {
+            try {
                 base.OnSubModuleLoad();
 
                 var harmony = new Harmony(ModId);
@@ -28,8 +24,7 @@ namespace StorageVillage
                 InformationManager.DisplayMessage(new InformationMessage($"Module {ModId} loaded"));
                 System.Diagnostics.Debug.WriteLine("Debugger is attached");
             }
-            catch (Exception e)
-            {
+            catch (Exception e) {
                 Debug.PrintError(e.Message, e.StackTrace);
                 Debug.WriteDebugLineOnScreen(e.ToString());
                 Debug.SetCrashReportCustomString(e.Message);
@@ -37,15 +32,12 @@ namespace StorageVillage
             }
         }
 
-        protected override void OnSubModuleUnloaded()
-        {
+        protected override void OnSubModuleUnloaded() {
             base.OnSubModuleUnloaded();
         }
 
-        protected override void OnGameStart(Game game, IGameStarter gameStarterObject)
-        {
-            if (game.GameType is Campaign)
-            {
+        protected override void OnGameStart(Game game, IGameStarter gameStarterObject) {
+            if (game.GameType is Campaign) {
                 CampaignGameStarter campaignStarter = (CampaignGameStarter)gameStarterObject;
                 campaignStarter.AddBehavior(new SettlementBehavior());
                 campaignStarter.AddBehavior(new TroopBehavior());
@@ -56,19 +48,16 @@ namespace StorageVillage
             }
         }
 
-        protected void testCommand()
-        {
+        protected void testCommand() {
             Module.CurrentModule.AddInitialStateOption(
                 new InitialStateOption(
                     "TestMainMenuOption",
                     new TextObject("Click me!", null),
                     9990,
-                    () =>
-                    {
+                    () => {
                         InformationManager.DisplayMessage(new InformationMessage("InformationMessage"));
                     },
-                    () =>
-                    {
+                    () => {
                         return (false, null);
                     }
                 )

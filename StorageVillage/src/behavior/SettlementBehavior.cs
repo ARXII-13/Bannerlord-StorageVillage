@@ -1,44 +1,35 @@
 ﻿using System;
 using System.Reflection;
-
+using StorageVillage.src.util;
 using TaleWorlds.CampaignSystem;
 using TaleWorlds.CampaignSystem.GameMenus;
-using TaleWorlds.Localization;
-
+using TaleWorlds.CampaignSystem.GameState;
 using TaleWorlds.CampaignSystem.Inventory;
+using TaleWorlds.CampaignSystem.Party;
 using TaleWorlds.CampaignSystem.Roster;
 using TaleWorlds.CampaignSystem.Settlements;
 using TaleWorlds.Core;
-using TaleWorlds.CampaignSystem.GameState;
-using TaleWorlds.CampaignSystem.Party;
+using TaleWorlds.Localization;
 
-using StorageVillage.src.util;
-
-namespace StorageVillage.src.behavior
-{
-    public class SettlementBehavior : CampaignBehaviorBase
-    {
+namespace StorageVillage.src.behavior {
+    public class SettlementBehavior : CampaignBehaviorBase {
         private string[] SETTLEMENT_OBJECT_TO_SUPPORT = new string[] { "town", "castle" };
 
         private ItemRoster roster;
 
-        public override void RegisterEvents()
-        {
+        public override void RegisterEvents() {
             CampaignEvents.OnSessionLaunchedEvent.AddNonSerializedListener(this, new Action<CampaignGameStarter>(OnSessionLaunched));
         }
 
-        public override void SyncData(IDataStore dataStore)
-        {
+        public override void SyncData(IDataStore dataStore) {
             dataStore.SyncData("inventoryData", ref roster);
         }
 
-        private void OnSessionLaunched(CampaignGameStarter campaignGameStarter)
-        {
+        private void OnSessionLaunched(CampaignGameStarter campaignGameStarter) {
             AddMenus(campaignGameStarter);
         }
 
-        private void AddMenus(CampaignGameStarter campaignGameStarter)
-        {
+        private void AddMenus(CampaignGameStarter campaignGameStarter) {
             campaignGameStarter.AddGameMenu(
                 menuId: Constants.MAIN_MENU_ID,
                 menuText: "{=STORAGE_MENU}Storage",
@@ -49,8 +40,7 @@ namespace StorageVillage.src.behavior
                 menuId: Constants.MAIN_MENU_ID,
                 optionId: Constants.INVENTORY_MENU_ID,
                 optionText: "{=INVENTORY_MENU}Inventory",
-                condition: delegate (MenuCallbackArgs args)
-                {
+                condition: delegate (MenuCallbackArgs args) {
                     args.optionLeaveType = GameMenuOption.LeaveType.Manage;
                     return true;
                 },
@@ -109,8 +99,7 @@ namespace StorageVillage.src.behavior
                 index: -1
              );
 
-            foreach (string menuId in SETTLEMENT_OBJECT_TO_SUPPORT)
-            {
+            foreach (string menuId in SETTLEMENT_OBJECT_TO_SUPPORT) {
                 campaignGameStarter.AddGameMenuOption(
                     menuId: menuId,
                     optionId: Constants.MAIN_MENU_ID,
@@ -121,72 +110,53 @@ namespace StorageVillage.src.behavior
             }
         }
 
-        public static void StorageMenuInit(MenuCallbackArgs args)
-        {
+        public static void StorageMenuInit(MenuCallbackArgs args) {
             args.MenuTitle = new TextObject("{=STORAGE_MENU}Storage");
         }
 
-        private bool MenuConditionForStorageMenu(MenuCallbackArgs args)
-        {
+        private bool MenuConditionForStorageMenu(MenuCallbackArgs args) {
             args.optionLeaveType = GameMenuOption.LeaveType.Manage;
             return true;
         }
 
-        private bool MenuConditionForLeave(MenuCallbackArgs args)
-        {
+        private bool MenuConditionForLeave(MenuCallbackArgs args) {
             args.optionLeaveType = GameMenuOption.LeaveType.Leave;
             return true;
         }
 
-        private bool MenuConditionForSubMenu(MenuCallbackArgs args)
-        {
+        private bool MenuConditionForSubMenu(MenuCallbackArgs args) {
             args.optionLeaveType = GameMenuOption.LeaveType.Submenu;
             return true;
         }
 
-        private void MenuConsequenceForStorage(MenuCallbackArgs args)
-        {
+        private void MenuConsequenceForStorage(MenuCallbackArgs args) {
             GameMenu.SwitchToMenu(Constants.MAIN_MENU_ID);
         }
 
-        private void MenuConsequenceForInventory(MenuCallbackArgs args)
-        {
-            if (roster == null)
-            {
+        private void MenuConsequenceForInventory(MenuCallbackArgs args) {
+            if (roster == null) {
                 roster = new ItemRoster();
             }
 
             InventoryManager.OpenScreenAsStash(roster);
         }
-        private void MenuConsequenceForTroop(MenuCallbackArgs args)
-        {
+        private void MenuConsequenceForTroop(MenuCallbackArgs args) {
             GameMenu.SwitchToMenu(Constants.TROOP_MENU_ID);
         }
 
-        private void MenuConsequenceForBank(MenuCallbackArgs args)
-        {
+        private void MenuConsequenceForBank(MenuCallbackArgs args) {
             GameMenu.SwitchToMenu(Constants.BANK_MENU_ID);
         }
 
-        private void MenuConsequenceForBandit(MenuCallbackArgs args)
-        {
+        private void MenuConsequenceForBandit(MenuCallbackArgs args) {
             GameMenu.SwitchToMenu(Constants.BANDIT_MENU_ID);
         }
 
-        private void MenuConsequenceForDonateFood(MenuCallbackArgs args)
-        {
-            // InventoryManager.OpenScreenAsStash(newRoster);
-            // InventoryManager.OpenScreenAsTrade(newRoster, Settlement.CurrentSettlement.SettlementComponent, InventoryManager.InventoryCategoryType.Goods);
+        private void MenuConsequenceForDonateFood(MenuCallbackArgs args) {
             OpenScreenAsDonateFood();
-
-
-            // Debug.Print("MenuConsequenceForDonateFood newRoster");
-            // Debug.Print(newRoster.ToString());
-            // Debug.WriteDebugLineOnScreen(newRoster.ToString());
         }
 
-        private void OpenScreenAsDonateFood()
-        {
+        private void OpenScreenAsDonateFood() {
             InventoryManager inventoryManager = Campaign.Current.InventoryManager;
             ItemRoster newRoster = new ItemRoster();
             InventoryLogic inventoryLogic = new InventoryLogic(null);
@@ -204,7 +174,6 @@ namespace StorageVillage.src.behavior
 
             FieldInfo inventroyLogicfield = typeof(InventoryManager).GetField("_inventoryLogic",
                 BindingFlags.Instance | BindingFlags.NonPublic);
-
             inventroyLogicfield.SetValue(inventoryManager, inventoryLogic);
 
             FieldInfo currentModeField = typeof(InventoryManager).GetField("_currentMode",
@@ -212,16 +181,6 @@ namespace StorageVillage.src.behavior
             currentModeField.SetValue(inventoryManager, InventoryMode.Stash);
 
             inventoryLogic.SetDonateFoodFlag(true);
-            // FieldInfo isDonateFoodToSettlementField = AccessTools.Field(typeof(InventoryLogic), "_isDonateFoodToSettlement");
-            // if (inventoryLogic == null)
-            // {
-            //     System.Diagnostics.Debug.WriteLine("InventoryLogic instance is null!");
-            //     return;
-            // }
-            // System.Diagnostics.Debug.WriteLine(inventoryLogic.ToString());
-            // System.Diagnostics.Debug.WriteLine(isDonateFoodToSettlementField.ToString());
-
-            // isDonateFoodToSettlementField.SetValue(inventoryLogic, true);
 
             // Then proceed to push the state
             InventoryState inventoryState = Game.Current.GameStateManager.CreateState<InventoryState>();
@@ -230,8 +189,7 @@ namespace StorageVillage.src.behavior
             Game.Current.GameStateManager.PushState(inventoryState);
         }
 
-        private void MenuConsequenceForLeave(MenuCallbackArgs args)
-        {
+        private void MenuConsequenceForLeave(MenuCallbackArgs args) {
             string menu = Settlement.CurrentSettlement.IsVillage ? "village" : (Settlement.CurrentSettlement.IsCastle ? "castle" : "town");
             GameMenu.SwitchToMenu(menu);
         }
