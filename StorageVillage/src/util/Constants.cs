@@ -14,6 +14,7 @@ namespace StorageVillage.src.util {
         public static float FOOD_DONATE_MORALE_FACTOR = 0.1f;
         public static float FOOD_DONATE_STOCK_FACTOR = 0.5f;
         public static float FOOD_DONATE_RELATION_FACTOR = 0.005f;
+        public static float FOOD_DONATE_INFLUENCE_FACTOR = 0.05f;
 
     }
 }

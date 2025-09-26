@@ -53,6 +53,7 @@
     <string id="DONATE_FOOD_TO_SETTLEMENT" text="Donate Food to Settlement" />
     <string id="DONATION_FOOD_INCREASE" text="Food stock in {SETTLEMENT_NAME} increased by {INCREASE_AMOUNT} to {NEW_AMOUNT}." />
     <string id="DONATION_SECURITY_INCREASE" text="Security in {SETTLEMENT_NAME} increased by {INCREASE_AMOUNT} to {NEW_AMOUNT}." />
+    <string id="DONATION_INFLUENCE_INCREASE" text="Influence increased by {INCREASE_AMOUNT} to {NEW_AMOUNT}." />
 
     <string id="CONFIRM" text="Confirm"/>
     <string id="CANCEL" text="Cancel"/>

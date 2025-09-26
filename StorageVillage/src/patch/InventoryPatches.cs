@@ -7,6 +7,7 @@ using TaleWorlds.CampaignSystem.Actions;
 using TaleWorlds.CampaignSystem.Inventory;
 using TaleWorlds.CampaignSystem.Settlements;
 using TaleWorlds.Core;
+using TaleWorlds.Engine;
 using TaleWorlds.Library;
 using TaleWorlds.Localization;
 
@@ -39,32 +40,34 @@ namespace StorageVillage.src.patch {
             System.Diagnostics.Debug.WriteLine("test harmony Postfix DoneLogic");
             var soldItemsObj = getSoldItemsMethod.Invoke(transactionHistory, null);
             var soldItems = (List<(ItemRosterElement, int)>)soldItemsObj;
-            (float foodIncrease, float securityIncrease, float relationIncrease) = getDonationResults(soldItems);
-            applyDonationResults(foodIncrease, securityIncrease, relationIncrease);
+            (int foodIncrease, int securityIncrease, int relationIncrease, int influenceIncrease) = getDonationResults(soldItems);
+            applyDonationResults(foodIncrease, securityIncrease, relationIncrease, influenceIncrease);
 
             __instance.ClearFlagsData();
         }
 
-        private static (float foodIncrease, float securityIncrease, float relationIncrease) getDonationResults(List<(ItemRosterElement, int)> soldItems) {
+        private static (int foodIncrease, int securityIncrease, int relationIncrease, int renownIncrease) getDonationResults(List<(ItemRosterElement, int)> soldItems) {
             float foodIncrease = 0;
-            float moraleBonus = 0;
+            float securityIncrease = 0;
             float relationIncrease = 0;
+            float influenceIncrease = 0;
             for (int i = 0; i < soldItems.Count; i++) {
-                var (itemElement, count) = soldItems[i];
+                var (itemElement, _) = soldItems[i];
                 ItemObject item = itemElement.EquipmentElement.Item;
                 if (!item.IsFood) {
                     continue;
                 }
                 int amount = itemElement.Amount;
-                foodIncrease += (int)(amount * Constants.FOOD_DONATE_STOCK_FACTOR);
-                moraleBonus += (int)(amount * item.FoodComponent.MoraleBonus * Constants.FOOD_DONATE_MORALE_FACTOR);
-                relationIncrease += (int)(amount * item.Value * Constants.FOOD_DONATE_RELATION_FACTOR);
+                foodIncrease += amount * Constants.FOOD_DONATE_STOCK_FACTOR;
+                securityIncrease += amount * item.FoodComponent.MoraleBonus * Constants.FOOD_DONATE_MORALE_FACTOR;
+                relationIncrease += amount * item.Value * Constants.FOOD_DONATE_RELATION_FACTOR;
+                influenceIncrease += amount * item.Value * Constants.FOOD_DONATE_INFLUENCE_FACTOR;
             }
 
-            return (foodIncrease, moraleBonus, relationIncrease);
+            return ((int)foodIncrease, (int)securityIncrease, (int)relationIncrease, (int)influenceIncrease);
         }
 
-        private static void applyDonationResults(float foodIncrease, float securityIncrease, float relationIncrease) {
+        private static void applyDonationResults(int foodIncrease, int securityIncrease, int relationIncrease, int influenceIncrease) {
             Settlement currentSettlement = Settlement.CurrentSettlement;
             if (currentSettlement == null) {
                 return;
@@ -83,7 +86,7 @@ namespace StorageVillage.src.patch {
             );
             foodIncreaseText.SetTextVariable("SETTLEMENT_NAME", currentSettlement.Name);
             foodIncreaseText.SetTextVariable("INCREASE_AMOUNT", foodIncrease);
-            foodIncreaseText.SetTextVariable("NEW_AMOUNT", currentSettlement.Town.FoodStocks);
+            foodIncreaseText.SetTextVariable("NEW_AMOUNT", (int)currentSettlement.Town.FoodStocks);
             InformationManager.DisplayMessage(new InformationMessage(foodIncreaseText.ToString()));
 
             int securityUpperLimit = 100;
@@ -99,24 +102,33 @@ namespace StorageVillage.src.patch {
             );
             securityIncreaseText.SetTextVariable("SETTLEMENT_NAME", currentSettlement.Name);
             securityIncreaseText.SetTextVariable("INCREASE_AMOUNT", securityIncrease);
-            securityIncreaseText.SetTextVariable("NEW_AMOUNT", currentSettlement.Town.Security);
+            securityIncreaseText.SetTextVariable("NEW_AMOUNT", (int)currentSettlement.Town.Security);
             InformationManager.DisplayMessage(new InformationMessage(securityIncreaseText.ToString()));
 
             Hero playerHero = Hero.MainHero;
             Hero owner = currentSettlement.Owner;
             if (owner != null && owner.IsAlive) {
-                if ((int)relationIncrease > 0) {
-                    ChangeRelationAction.ApplyRelationChangeBetweenHeroes(playerHero, owner, (int)relationIncrease);
+                if (relationIncrease > 0) {
+                    ChangeRelationAction.ApplyRelationChangeBetweenHeroes(playerHero, owner, relationIncrease);
+                }
+
+                if (playerHero.Clan.Kingdom.Name == owner.Clan.Kingdom.Name) {
+                    GainKingdomInfluenceAction.ApplyForGivingFood(playerHero, owner, influenceIncrease);
+                    TextObject influenceIncreaseText = new TextObject(
+                        "{=DONATION_INFLUENCE_INCREASE}Influence increased by {INCREASE_AMOUNT} to {NEW_AMOUNT}."
+                    );
+                    influenceIncreaseText.SetTextVariable("INCREASE_AMOUNT", influenceIncrease);
+                    influenceIncreaseText.SetTextVariable("NEW_AMOUNT", (int)playerHero.Clan.Influence);
+                    InformationManager.DisplayMessage(new InformationMessage(influenceIncreaseText.ToString()));
                 }
             }
             MBReadOnlyList<Hero> notables = currentSettlement.Notables;
             for (int i = 0; i < notables.Count; i++) {
                 Hero notable = notables[i];
                 if (notable.IsAlive) {
-                    ChangeRelationAction.ApplyRelationChangeBetweenHeroes(playerHero, notable, (int)relationIncrease);
+                    ChangeRelationAction.ApplyRelationChangeBetweenHeroes(playerHero, notable, relationIncrease);
                 }
             }
-
         }
     }
 }
