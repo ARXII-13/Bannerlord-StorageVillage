@@ -364,3 +364,6 @@ FodyWeavers.xsd
 
 /env.xml
 .vscode/
+
+StorageVillage/dist/
+StorageVillage/dependencies/

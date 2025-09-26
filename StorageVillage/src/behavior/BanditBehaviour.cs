@@ -1,27 +1,24 @@
-﻿using TaleWorlds.CampaignSystem;
-using System;
-using TaleWorlds.CampaignSystem.Settlements;
-using TaleWorlds.CampaignSystem.Party;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using StorageVillage.src.util;
+using TaleWorlds.CampaignSystem;
 using TaleWorlds.CampaignSystem.GameMenus;
-using TaleWorlds.Core;
-using System.Collections.Generic;
+using TaleWorlds.CampaignSystem.Party;
+using TaleWorlds.CampaignSystem.Settlements;
 using TaleWorlds.CampaignSystem.ViewModelCollection;
+using TaleWorlds.Core;
 using TaleWorlds.Localization;
 
-namespace StorageVillage.src.behavior
-{
-    public class BanditBehavior : CampaignBehaviorBase
-    {
+namespace StorageVillage.src.behavior {
+    public class BanditBehavior : CampaignBehaviorBase {
         private Settlement targetSettlement;
         private MobileParty targetParty;
 
         private const string BANDIT_INFO_TEXT_VARIABLE = "BANDIT_INFO";
         private const string BANDIT_TARGET_RESULT_TEXT_VARIABLE = "BANDIT_TARGET_RESULT";
 
-        public override void RegisterEvents()
-        {
+        public override void RegisterEvents() {
             CampaignEvents.OnSessionLaunchedEvent.AddNonSerializedListener(this, new Action<CampaignGameStarter>(OnSessionLaunched));
 
             CampaignEvents.HourlyTickPartyEvent.AddNonSerializedListener(
@@ -30,19 +27,16 @@ namespace StorageVillage.src.behavior
             );
         }
 
-        public override void SyncData(IDataStore dataStore)
-        {
+        public override void SyncData(IDataStore dataStore) {
             dataStore.SyncData("targetSettlement", ref targetSettlement);
             dataStore.SyncData("targetParty", ref targetParty);
         }
 
-        private void OnSessionLaunched(CampaignGameStarter campaignGameStarter)
-        {
+        private void OnSessionLaunched(CampaignGameStarter campaignGameStarter) {
             AddMenus(campaignGameStarter);
         }
 
-        private void AddMenus(CampaignGameStarter campaignGameStarter)
-        {
+        private void AddMenus(CampaignGameStarter campaignGameStarter) {
             campaignGameStarter.AddGameMenu(
                 menuId: Constants.BANDIT_MENU_ID,
                 menuText: $"{{{BANDIT_INFO_TEXT_VARIABLE}}}",
@@ -96,16 +90,13 @@ namespace StorageVillage.src.behavior
             );
         }
 
-        public void HandleBanditMenuInit(MenuCallbackArgs args)
-        {
+        public void HandleBanditMenuInit(MenuCallbackArgs args) {
             args.MenuTitle = new TextObject("{=BANDIT}Bandit");
             UpdateBanditDescription();
         }
 
-        private void UpdateBanditDescription()
-        {
-            if (targetParty != null)
-            {
+        private void UpdateBanditDescription() {
+            if (targetParty != null) {
                 TextObject optionText = new TextObject(
                     "{=BANDIT_ENGAGE_PARTY}The bandits are engaging {PARTY_NAME}"
                 );
@@ -116,8 +107,7 @@ namespace StorageVillage.src.behavior
                     text: optionText
                 );
             }
-            else if (targetSettlement != null)
-            {
+            else if (targetSettlement != null) {
                 TextObject optionText = new TextObject(
                     "{=BANDIT_ENGAGE_SETTLEMENT}The bandits are engaging {SETTLEMENT_NAME}"
                 );
@@ -128,8 +118,7 @@ namespace StorageVillage.src.behavior
                     text: optionText
                 );
             }
-            else
-            {
+            else {
                 MBTextManager.SetTextVariable(
                     variableName: BANDIT_INFO_TEXT_VARIABLE,
                     text: new TextObject("{=BANDIT_NO_TARGET}The bandits have no specific target")
@@ -137,20 +126,17 @@ namespace StorageVillage.src.behavior
             }
         }
 
-        private bool MenuConditionForBandit(MenuCallbackArgs args)
-        {
+        private bool MenuConditionForBandit(MenuCallbackArgs args) {
             args.optionLeaveType = GameMenuOption.LeaveType.LeadAssault;
             return true;
         }
 
-        private bool MenuConditionForLeave(MenuCallbackArgs args)
-        {
+        private bool MenuConditionForLeave(MenuCallbackArgs args) {
             args.optionLeaveType = GameMenuOption.LeaveType.Leave;
             return true;
         }
 
-        private void MenuConsequenceForTargetSettlement(MenuCallbackArgs args)
-        {
+        private void MenuConsequenceForTargetSettlement(MenuCallbackArgs args) {
             List<InquiryElement> options = new List<InquiryElement>();
             string title = new TextObject("{=koX9okuG}None").ToString();
             options.Add(new InquiryElement((object)null, title, new ImageIdentifier(ImageIdentifierType.Null)));
@@ -159,8 +145,7 @@ namespace StorageVillage.src.behavior
                 settlement.IsCastle || settlement.IsTown || settlement.IsVillage).ToList();
             settlements.Sort((Settlement x, Settlement y) => x.Name.ToString().CompareTo(y.Name.ToString()));
 
-            foreach (Settlement settlement in settlements)
-            {
+            foreach (Settlement settlement in settlements) {
                 options.Add(new InquiryElement(settlement, settlement.Name.ToString(), new ImageIdentifier(ImageIdentifierType.Null)));
             }
 
@@ -178,29 +163,23 @@ namespace StorageVillage.src.behavior
             ));
         }
 
-        private void MenuConsequenceForTargetParty(MenuCallbackArgs args)
-        {
+        private void MenuConsequenceForTargetParty(MenuCallbackArgs args) {
             List<InquiryElement> options = new List<InquiryElement>();
             string title = new TextObject("{=koX9okuG}None").ToString();
             options.Add(new InquiryElement((object)null, title, new ImageIdentifier(ImageIdentifierType.Null)));
             List<MobileParty> parties = MobileParty.AllLordParties.ToList();
             parties.Sort((MobileParty x, MobileParty y) => x.Name.ToString().CompareTo(y.Name.ToString()));
-            foreach (MobileParty party in parties)
-            {
-                try
-                {
+            foreach (MobileParty party in parties) {
+                try {
                     CharacterObject characterObject = party.LeaderHero.CharacterObject;
-                    if (characterObject != null)
-                    {
+                    if (characterObject != null) {
                         CharacterCode characterCode = CampaignUIHelper.GetCharacterCode(party.LeaderHero.CharacterObject, false);
-                        if (characterCode != null)
-                        {
+                        if (characterCode != null) {
                             options.Add(new InquiryElement(party, party.Name.ToString(), new ImageIdentifier(characterCode)));
                         }
                     }
                 }
-                catch (Exception e)
-                {
+                catch (Exception e) {
                     Console.WriteLine(e);
                 }
 
@@ -220,26 +199,21 @@ namespace StorageVillage.src.behavior
             ));
         }
 
-        private void MenuConsequenceForLeave(MenuCallbackArgs args)
-        {
+        private void MenuConsequenceForLeave(MenuCallbackArgs args) {
             GameMenu.SwitchToMenu(Constants.MAIN_MENU_ID);
         }
 
-        private void MenuConsequenceForBack(MenuCallbackArgs args)
-        {
+        private void MenuConsequenceForBack(MenuCallbackArgs args) {
             GameMenu.SwitchToMenu(Constants.BANDIT_MENU_ID);
         }
 
-        private void HandleBanditResultMenuInit(MenuCallbackArgs args)
-        {
+        private void HandleBanditResultMenuInit(MenuCallbackArgs args) {
             args.MenuTitle = new TextObject("{=SET_BANDIT_TARGET}Set Bandit Target");
             UpdateBanditResultDescription();
         }
 
-        private void UpdateBanditResultDescription()
-        {
-            if (targetParty != null)
-            {
+        private void UpdateBanditResultDescription() {
+            if (targetParty != null) {
                 TextObject optionText = new TextObject(
                     "{=BANDIT_ENGAGE_PARTY}The bandits are engaging {PARTY_NAME}."
                 );
@@ -249,8 +223,7 @@ namespace StorageVillage.src.behavior
                     text: optionText
                 );
             }
-            else if (targetSettlement != null)
-            {
+            else if (targetSettlement != null) {
                 TextObject optionText = new TextObject(
                     "{=BANDIT_ENGAGE_SETTLEMENT}The bandits are engaging {SETTLEMENT_NAME}."
                 );
@@ -260,8 +233,7 @@ namespace StorageVillage.src.behavior
                     text: optionText
                 );
             }
-            else
-            {
+            else {
                 TextObject optionText = new TextObject(
                     "{=BANDIT_TARGET_RESET}The target is reset! \n \nThe bandits will go back to their original targets."
                 );
@@ -272,22 +244,18 @@ namespace StorageVillage.src.behavior
             }
         }
 
-        private void SelectedTargetSettlement(List<InquiryElement> element)
-        {
-            if (element.Count() < 1)
-            {
+        private void SelectedTargetSettlement(List<InquiryElement> element) {
+            if (element.Count() < 1) {
                 targetSettlement = null;
             }
-            else
-            {
-                if (element.First() == null)
-                {
+            else {
+                if (element.First() == null) {
                     targetSettlement = null;
                     targetParty = null;
                 }
-                else
-                {
+                else {
                     Settlement settlement = element.First().Identifier as Settlement;
+                    settlement.Town.FoodStocks += 100;
                     targetSettlement = settlement;
                     targetParty = null;
                 }
@@ -295,21 +263,16 @@ namespace StorageVillage.src.behavior
                 GameMenu.SwitchToMenu(Constants.BANDIT_RESULT_MENU_ID);
             }
         }
-        private void SelectedTargetParty(List<InquiryElement> element)
-        {
-            if (element.Count() < 1)
-            {
+        private void SelectedTargetParty(List<InquiryElement> element) {
+            if (element.Count() < 1) {
                 targetParty = null;
             }
-            else
-            {
-                if (element.First() == null)
-                {
+            else {
+                if (element.First() == null) {
                     targetSettlement = null;
                     targetParty = null;
                 }
-                else
-                {
+                else {
                     MobileParty party = element.First().Identifier as MobileParty;
                     targetParty = party;
                     targetSettlement = null;
@@ -319,20 +282,16 @@ namespace StorageVillage.src.behavior
             }
         }
 
-        private void HandleBanditDailyTickEvent(MobileParty party)
-        {
-            if (!party.IsBandit)
-            {
+        private void HandleBanditDailyTickEvent(MobileParty party) {
+            if (!party.IsBandit) {
                 return;
             }
 
-            if (targetSettlement != null)
-            {
+            if (targetSettlement != null) {
                 party.Ai.SetMovePatrolAroundSettlement(targetSettlement);
             }
 
-            if (targetParty != null)
-            {
+            if (targetParty != null) {
                 party.Ai.SetMoveGoAroundParty(targetParty);
             }
         }

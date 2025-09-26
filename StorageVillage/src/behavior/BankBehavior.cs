@@ -1,20 +1,18 @@
-﻿using TaleWorlds.CampaignSystem;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using StorageVillage.src.util;
+using TaleWorlds.CampaignSystem;
+using TaleWorlds.CampaignSystem.CharacterDevelopment;
 using TaleWorlds.CampaignSystem.GameMenus;
-using TaleWorlds.Localization;
-using System;
+using TaleWorlds.CampaignSystem.Party;
 using TaleWorlds.CampaignSystem.Settlements;
 using TaleWorlds.Core;
-using StorageVillage.src.util;
-using TaleWorlds.CampaignSystem.Party;
-using System.Collections.Generic;
-using TaleWorlds.CampaignSystem.CharacterDevelopment;
-using System.Linq;
 using TaleWorlds.Library;
+using TaleWorlds.Localization;
 
-namespace StorageVillage.src.behavior
-{
-    public class BankBehavior : CampaignBehaviorBase
-    {
+namespace StorageVillage.src.behavior {
+    public class BankBehavior : CampaignBehaviorBase {
         private static int currentBalance;
         private static double currentWeeklyInterest;
 
@@ -30,8 +28,7 @@ namespace StorageVillage.src.behavior
 
         private const string MONEY_ICON = "<img src=\"General\\Icons\\Coin@2x\" extend=\"8\">";
 
-        public override void RegisterEvents()
-        {
+        public override void RegisterEvents() {
             CampaignEvents.OnSessionLaunchedEvent.AddNonSerializedListener(this, new Action<CampaignGameStarter>(OnSessionLaunched));
 
             CampaignEvents.DailyTickEvent.AddNonSerializedListener(
@@ -40,19 +37,16 @@ namespace StorageVillage.src.behavior
             );
         }
 
-        public override void SyncData(IDataStore dataStore)
-        {
+        public override void SyncData(IDataStore dataStore) {
             dataStore.SyncData("currentBalance", ref currentBalance);
         }
 
-        private void OnSessionLaunched(CampaignGameStarter campaignGameStarter)
-        {
+        private void OnSessionLaunched(CampaignGameStarter campaignGameStarter) {
             AddMenus(campaignGameStarter);
             UpdateBankDescription();
         }
 
-        private void AddMenus(CampaignGameStarter campaignGameStarter)
-        {
+        private void AddMenus(CampaignGameStarter campaignGameStarter) {
             campaignGameStarter.AddGameMenu(
                 menuId: Constants.BANK_MENU_ID,
                 menuText: $"{{{BANK_INFO_TEXT_VARIABLE}}}",
@@ -106,15 +100,13 @@ namespace StorageVillage.src.behavior
             );
         }
 
-        private void HandleBankMenuInit(MenuCallbackArgs args)
-        {
+        private void HandleBankMenuInit(MenuCallbackArgs args) {
             args.MenuTitle = new TextObject("{=!}National Bank");
             currentWeeklyInterest = CalculateWeeklyInterest();
             UpdateBankDescription();
         }
 
-        private void UpdateBankDescription()
-        {
+        private void UpdateBankDescription() {
             MBTextManager.SetTextVariable(
                 variableName: BANK_INFO_TITLE_TEXT_VARIABLE,
                 text: new TextObject("{=CALRADIA_CENTRAL_BANK}Calradia Central Bank")
@@ -153,14 +145,12 @@ namespace StorageVillage.src.behavior
             );
         }
 
-        private void HandleBankResultMenuInit(MenuCallbackArgs args)
-        {
+        private void HandleBankResultMenuInit(MenuCallbackArgs args) {
             args.MenuTitle = new TextObject("{=BANK_RESULT}Bank Result");
             UpdateBankResultDescription();
         }
 
-        private void UpdateBankResultDescription()
-        {
+        private void UpdateBankResultDescription() {
             TextObject resultText = new TextObject(
                 "{=BANK_RESULT_DESCRIPTION}Action completed successfully!\n\nThe current balance is:\n{BALANCE} {ICON}"
             );
@@ -173,20 +163,17 @@ namespace StorageVillage.src.behavior
 
         }
 
-        private bool MenuConditionForLeave(MenuCallbackArgs args)
-        {
+        private bool MenuConditionForLeave(MenuCallbackArgs args) {
             args.optionLeaveType = GameMenuOption.LeaveType.Leave;
             return true;
         }
 
-        private bool MenuConditionForBankAction(MenuCallbackArgs args)
-        {
+        private bool MenuConditionForBankAction(MenuCallbackArgs args) {
             args.optionLeaveType = GameMenuOption.LeaveType.Trade;
             return true;
         }
 
-        private void MenuConsequenceForDeposit(MenuCallbackArgs args)
-        {
+        private void MenuConsequenceForDeposit(MenuCallbackArgs args) {
             InformationManager.ShowTextInquiry(new TextInquiryData(
                 titleText: new TextObject("{=DEPOSIT}Deposit").ToString(),
                 text: new TextObject("{=DEPOSIT_DESCRIPTION}Please input the amount of denar that you would like to deposit:").ToString(),
@@ -201,8 +188,7 @@ namespace StorageVillage.src.behavior
             ));
         }
 
-        private void DepositFromBank(string amount)
-        {
+        private void DepositFromBank(string amount) {
             int depositAmount = ConvertStringToNumber(amount);
             currentBalance += depositAmount;
             PartyBase.MainParty.LeaderHero.ChangeHeroGold(-depositAmount);
@@ -210,22 +196,19 @@ namespace StorageVillage.src.behavior
             GameMenu.SwitchToMenu(Constants.BANK_RESULT_MENU_ID);
         }
 
-        public static Tuple<bool, string> DepositTextCondition(string amount)
-        {
+        public static Tuple<bool, string> DepositTextCondition(string amount) {
             List<TextObject> list = IsProperMoneyAmount(amount);
 
             int currentOwnedMoney = PartyBase.MainParty.LeaderHero.Gold;
             int depositAmount = ConvertStringToNumber(amount);
-            if (currentOwnedMoney < depositAmount)
-            {
+            if (currentOwnedMoney < depositAmount) {
                 list.Add(new TextObject("{=DEPOSIT_INSUFFICIENT_BALANCE}You do not have sufficient balance to deposit!"));
             }
 
             return ConvertListToTuple(list);
         }
 
-        private void MenuConsequenceForWithdraw(MenuCallbackArgs args)
-        {
+        private void MenuConsequenceForWithdraw(MenuCallbackArgs args) {
             InformationManager.ShowTextInquiry(new TextInquiryData(
                  titleText: new TextObject("{=WITHDRAW}Withdraw").ToString(),
                  text: new TextObject("{=WITHDRAW_DESCRIPTION}Please input the amount of denar that you would like to withdraw:").ToString(),
@@ -240,8 +223,7 @@ namespace StorageVillage.src.behavior
              ));
         }
 
-        private void WithdrawFromBank(string amount)
-        {
+        private void WithdrawFromBank(string amount) {
             int withdrawAmount = ConvertStringToNumber(amount);
             currentBalance -= withdrawAmount;
             PartyBase.MainParty.LeaderHero.ChangeHeroGold(withdrawAmount);
@@ -249,65 +231,53 @@ namespace StorageVillage.src.behavior
             GameMenu.SwitchToMenu(Constants.BANK_RESULT_MENU_ID);
         }
 
-        public static Tuple<bool, string> WithdrawTextCondition(string amount)
-        {
+        public static Tuple<bool, string> WithdrawTextCondition(string amount) {
             List<TextObject> list = IsProperMoneyAmount(amount);
 
             int withdrawAmount = ConvertStringToNumber(amount);
-            if (currentBalance < withdrawAmount)
-            {
+            if (currentBalance < withdrawAmount) {
                 list.Add(new TextObject("{=WITHDRAW_INSUFFICIENT_BALANCE}You do not have sufficient balance to withdraw!"));
             }
 
             return ConvertListToTuple(list);
         }
 
-        private void MenuConsequenceForLeave(MenuCallbackArgs args)
-        {
+        private void MenuConsequenceForLeave(MenuCallbackArgs args) {
             GameMenu.SwitchToMenu(Constants.MAIN_MENU_ID);
         }
 
-        private void MenuConsequenceForBack(MenuCallbackArgs args)
-        {
+        private void MenuConsequenceForBack(MenuCallbackArgs args) {
             GameMenu.SwitchToMenu(Constants.BANK_MENU_ID);
         }
 
-        private static int ConvertStringToNumber(string amount)
-        {
+        private static int ConvertStringToNumber(string amount) {
             var isNumeric = int.TryParse(amount, out int n);
-            if (isNumeric)
-            {
+            if (isNumeric) {
                 return Int32.Parse(amount);
             }
             return 0;
         }
 
-        private static List<TextObject> IsProperMoneyAmount(string amount)
-        {
+        private static List<TextObject> IsProperMoneyAmount(string amount) {
             List<TextObject> list = new List<TextObject>();
             var isNumeric = int.TryParse(amount, out int n);
 
-            if (!isNumeric)
-            {
+            if (!isNumeric) {
                 list.Add(new TextObject("{=!}The input must be a proper number!"));
             }
 
             return list;
         }
 
-        public static Tuple<bool, string> ConvertListToTuple(List<TextObject> list)
-        {
+        public static Tuple<bool, string> ConvertListToTuple(List<TextObject> list) {
             string item = string.Empty;
             bool item2 = list.Count == 0;
-            if (list.Count == 1)
-            {
+            if (list.Count == 1) {
                 item = list[0].ToString();
             }
-            else if (list.Count > 1)
-            {
+            else if (list.Count > 1) {
                 TextObject textObject = list[0];
-                for (int i = 1; i < list.Count; i++)
-                {
+                for (int i = 1; i < list.Count; i++) {
                     textObject = GameTexts.FindText("str_string_newline_newline_string").SetTextVariable("STR1", textObject.ToString()).SetTextVariable("STR2", list[i].ToString());
                 }
 
@@ -317,8 +287,7 @@ namespace StorageVillage.src.behavior
             return new Tuple<bool, string>(item2, item);
         }
 
-        private void HandleBankWeeklyTickEvent()
-        {
+        private void HandleBankWeeklyTickEvent() {
             currentWeeklyInterest = CalculateWeeklyInterest();
             int interestEarned = CalculateBankInterestEarn();
             currentBalance += interestEarned;
@@ -334,17 +303,14 @@ namespace StorageVillage.src.behavior
 
         }
 
-        private double CalculateWeeklyInterest()
-        {
+        private double CalculateWeeklyInterest() {
             float totalProsperous = 0;
             int numOfTown = 0;
 
             List<Settlement> settlements = Settlement.FindAll(settlement => settlement.IsTown).ToList();
 
-            foreach (Settlement settlement in settlements)
-            {
-                if (settlement.IsTown)
-                {
+            foreach (Settlement settlement in settlements) {
+                if (settlement.IsTown) {
                     totalProsperous += settlement.Town.Prosperity;
                     numOfTown++;
                 }
@@ -362,8 +328,7 @@ namespace StorageVillage.src.behavior
             return adjustedInterestRate;
         }
 
-        public int CalculateBankInterestEarn()
-        {
+        public int CalculateBankInterestEarn() {
             return (int)Math.Round(currentWeeklyInterest * currentBalance);
         }
     }
