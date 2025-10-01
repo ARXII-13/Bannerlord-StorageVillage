@@ -6,6 +6,9 @@ StorageVillage is a personal quality-of-life mod for **Mount & Blade II: Bannerl
 
 ![Town Menu](https://github.com/ARXII-13/Bannerlord-StorageVillage/blob/master/docs/images/storage_main_menu.jpg)
 
+### Donate Food (v1.1.0)
+A feature frequently requested by the community since the launch of the game. Add an option in town/castle that allow the user to donate food to the settlement to raise food stock level. Player will gain influence / relationship based on the donation quantity and quality.
+
 ## Features
 
 ### Inventory
@@ -31,6 +34,7 @@ I really love the bank feature from Mount & Blade: With Fire & Sword. Thus I bro
 This feature can set the goal of the bandit units on the map. Player can select the bandit target to certain characters / settlement so the bandit will try to engage the character or patrol around the settlement. It can be helpful when farming bandits for experience and money.
 
 ![Bandit Management](https://github.com/ARXII-13/Bannerlord-StorageVillage/blob/master/docs/images/storage_bandit.jpg)
+
 
 ### Compatibility
 
