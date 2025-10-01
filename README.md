@@ -6,10 +6,10 @@ StorageVillage is a personal quality-of-life mod for **Mount & Blade II: Bannerl
 
 ![Town Menu](https://github.com/ARXII-13/Bannerlord-StorageVillage/blob/master/docs/images/storage_main_menu.jpg)
 
+## Features
+
 ### Donate Food (v1.1.0)
 A feature frequently requested by the community since the launch of the game. Add an option in town/castle that allow the user to donate food to the settlement to raise food stock level. Player will gain influence / relationship based on the donation quantity and quality.
-
-## Features
 
 ### Inventory
 
