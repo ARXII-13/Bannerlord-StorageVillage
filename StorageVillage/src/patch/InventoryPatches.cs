@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.Reflection;
 using HarmonyLib;
+using StorageVillage.src.setting;
 using StorageVillage.src.util;
 using TaleWorlds.CampaignSystem;
 using TaleWorlds.CampaignSystem.Actions;
@@ -71,61 +72,72 @@ namespace StorageVillage.src.patch {
             if (currentSettlement == null) {
                 return;
             }
+            StorageVillageSettings settings = StorageVillageSettings.Instance;
 
-            int foodStocksUpperLimit = currentSettlement.Town.FoodStocksUpperLimit();
-            float currentFood = currentSettlement.Town.FoodStocks;
-            if (foodIncrease + currentFood > foodStocksUpperLimit) {
-                currentSettlement.Town.FoodStocks = foodStocksUpperLimit;
+            if (settings.foodDonationFoodIncrease) {
+                int foodStocksUpperLimit = currentSettlement.Town.FoodStocksUpperLimit();
+                float currentFood = currentSettlement.Town.FoodStocks;
+                if (foodIncrease + currentFood > foodStocksUpperLimit) {
+                    currentSettlement.Town.FoodStocks = foodStocksUpperLimit;
+                }
+                else {
+                    currentSettlement.Town.FoodStocks += foodIncrease;
+                }
+                TextObject foodIncreaseText = new TextObject(
+                    "{=DONATION_FOOD_INCREASE}Food stock in {SETTLEMENT_NAME} increased by {INCREASE_AMOUNT} to {NEW_AMOUNT}."
+                );
+                foodIncreaseText.SetTextVariable("SETTLEMENT_NAME", currentSettlement.Name);
+                foodIncreaseText.SetTextVariable("INCREASE_AMOUNT", foodIncrease);
+                foodIncreaseText.SetTextVariable("NEW_AMOUNT", (int)currentSettlement.Town.FoodStocks);
+                InformationManager.DisplayMessage(new InformationMessage(foodIncreaseText.ToString()));
             }
-            else {
-                currentSettlement.Town.FoodStocks += foodIncrease;
-            }
-            TextObject foodIncreaseText = new TextObject(
-                "{=DONATION_FOOD_INCREASE}Food stock in {SETTLEMENT_NAME} increased by {INCREASE_AMOUNT} to {NEW_AMOUNT}."
-            );
-            foodIncreaseText.SetTextVariable("SETTLEMENT_NAME", currentSettlement.Name);
-            foodIncreaseText.SetTextVariable("INCREASE_AMOUNT", foodIncrease);
-            foodIncreaseText.SetTextVariable("NEW_AMOUNT", (int)currentSettlement.Town.FoodStocks);
-            InformationManager.DisplayMessage(new InformationMessage(foodIncreaseText.ToString()));
 
-            int securityUpperLimit = 100;
-            float currentSecurity = currentSettlement.Town.Security;
-            if (securityIncrease + currentSecurity > securityUpperLimit) {
-                currentSettlement.Town.Security = securityUpperLimit;
+            if (settings.foodDonationSecurityIncrease) {
+                int securityUpperLimit = 100;
+                float currentSecurity = currentSettlement.Town.Security;
+                if (securityIncrease + currentSecurity > securityUpperLimit) {
+                    currentSettlement.Town.Security = securityUpperLimit;
+                }
+                else {
+                    currentSettlement.Town.Security += securityIncrease;
+                }
+                TextObject securityIncreaseText = new TextObject(
+                    "{=DONATION_SECURITY_INCREASE}Security in {SETTLEMENT_NAME} increased by {INCREASE_AMOUNT} to {NEW_AMOUNT}."
+                );
+                securityIncreaseText.SetTextVariable("SETTLEMENT_NAME", currentSettlement.Name);
+                securityIncreaseText.SetTextVariable("INCREASE_AMOUNT", securityIncrease);
+                securityIncreaseText.SetTextVariable("NEW_AMOUNT", (int)currentSettlement.Town.Security);
+                InformationManager.DisplayMessage(new InformationMessage(securityIncreaseText.ToString()));
             }
-            else {
-                currentSettlement.Town.Security += securityIncrease;
-            }
-            TextObject securityIncreaseText = new TextObject(
-                "{=DONATION_SECURITY_INCREASE}Security in {SETTLEMENT_NAME} increased by {INCREASE_AMOUNT} to {NEW_AMOUNT}."
-            );
-            securityIncreaseText.SetTextVariable("SETTLEMENT_NAME", currentSettlement.Name);
-            securityIncreaseText.SetTextVariable("INCREASE_AMOUNT", securityIncrease);
-            securityIncreaseText.SetTextVariable("NEW_AMOUNT", (int)currentSettlement.Town.Security);
-            InformationManager.DisplayMessage(new InformationMessage(securityIncreaseText.ToString()));
 
             Hero playerHero = Hero.MainHero;
             Hero owner = currentSettlement.Owner;
             if (owner != null && owner.IsAlive) {
-                if (relationIncrease > 0) {
-                    ChangeRelationAction.ApplyRelationChangeBetweenHeroes(playerHero, owner, relationIncrease);
+                if (settings.foodDonationInfluenceIncrease) {
+                    if (playerHero.Clan?.Kingdom?.Name == owner.Clan?.Kingdom?.Name) {
+                        GainKingdomInfluenceAction.ApplyForGivingFood(playerHero, owner, influenceIncrease);
+                        TextObject influenceIncreaseText = new TextObject(
+                            "{=DONATION_INFLUENCE_INCREASE}Influence increased by {INCREASE_AMOUNT} to {NEW_AMOUNT}."
+                        );
+                        influenceIncreaseText.SetTextVariable("INCREASE_AMOUNT", influenceIncrease);
+                        influenceIncreaseText.SetTextVariable("NEW_AMOUNT", (int)playerHero.Clan.Influence);
+                        InformationManager.DisplayMessage(new InformationMessage(influenceIncreaseText.ToString()));
+                    }
                 }
 
-                if (playerHero.Clan?.Kingdom?.Name == owner.Clan?.Kingdom?.Name) {
-                    GainKingdomInfluenceAction.ApplyForGivingFood(playerHero, owner, influenceIncrease);
-                    TextObject influenceIncreaseText = new TextObject(
-                        "{=DONATION_INFLUENCE_INCREASE}Influence increased by {INCREASE_AMOUNT} to {NEW_AMOUNT}."
-                    );
-                    influenceIncreaseText.SetTextVariable("INCREASE_AMOUNT", influenceIncrease);
-                    influenceIncreaseText.SetTextVariable("NEW_AMOUNT", (int)playerHero.Clan.Influence);
-                    InformationManager.DisplayMessage(new InformationMessage(influenceIncreaseText.ToString()));
+                if (settings.foodDonationRelationIncrease) {
+                    if (relationIncrease > 0) {
+                        ChangeRelationAction.ApplyRelationChangeBetweenHeroes(playerHero, owner, relationIncrease);
+                    }
                 }
             }
-            MBReadOnlyList<Hero> notables = currentSettlement.Notables;
-            for (int i = 0; i < notables.Count; i++) {
-                Hero notable = notables[i];
-                if (notable.IsAlive) {
-                    ChangeRelationAction.ApplyRelationChangeBetweenHeroes(playerHero, notable, relationIncrease);
+            if (settings.foodDonationRelationIncrease) {
+                MBReadOnlyList<Hero> notables = currentSettlement.Notables;
+                for (int i = 0; i < notables.Count; i++) {
+                    Hero notable = notables[i];
+                    if (notable.IsAlive) {
+                        ChangeRelationAction.ApplyRelationChangeBetweenHeroes(playerHero, notable, relationIncrease);
+                    }
                 }
             }
         }

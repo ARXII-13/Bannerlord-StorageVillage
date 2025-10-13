@@ -58,5 +58,15 @@
     <string id="CONFIRM" text="Confirm"/>
     <string id="CANCEL" text="Cancel"/>
 
+    <string id="BANK_SETTINGS" text="Bank Settings"/>
+    <string id="BANK_INTEREST_RATE_SETTING" text="Bank Weekly Interest Rate"/>
+    <string id="BANK_INTEREST_RATE_SETTING_HINT" text="Set the weekly interest rate decimal form"/>
+
+    <string id="FOOD_DONATION_SETTING" text="Food Donation Settings"/>
+    <string id="FOOD_DONATION_SECURITY_ENABLE" text="Food Donation Security Increase enabled"/>
+    <string id="FOOD_DONATION_FOOD_ENABLE" text="Food Donation Food Increase Rate"/>
+    <string id="FOOD_DONATION_RELATION_ENABLE" text="Food Donation Relation Increase Rate"/>
+    <string id="FOOD_DONATION_INFLUENCE_ENABLE" text="Food Donation Influence Increase Rate"/>
+
   </strings>
 </base>

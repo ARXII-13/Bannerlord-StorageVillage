@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using StorageVillage.src.setting;
 using StorageVillage.src.util;
 using TaleWorlds.CampaignSystem;
 using TaleWorlds.CampaignSystem.CharacterDevelopment;
@@ -22,8 +23,6 @@ namespace StorageVillage.src.behavior {
         private const string BANK_INFO_INTEREST_RATE_TEXT_VARIABLE = "BANK_INFO_INTEREST_RATE";
         private const string BANK_INFO_BALANCE_TEXT_VARIABLE = "BANK_INFO_BALANCE";
         private const string BANK_RESULT_TEXT_VARIABLE = "BANK_INFO";
-
-        private const double WEEKLY_BASE_INTEREST_RATE = 0.002;
         private const double TRADE_SKILL_PROFIT_MULTIPLIER = 1;
 
         private const string MONEY_ICON = "<img src=\"General\\Icons\\Coin@2x\" extend=\"8\">";
@@ -307,6 +306,8 @@ namespace StorageVillage.src.behavior {
             float totalProsperous = 0;
             int numOfTown = 0;
 
+            StorageVillageSettings settings = StorageVillageSettings.Instance;
+
             List<Settlement> settlements = Settlement.FindAll(settlement => settlement.IsTown).ToList();
 
             foreach (Settlement settlement in settlements) {
@@ -319,7 +320,8 @@ namespace StorageVillage.src.behavior {
             float averageProsperous = totalProsperous / numOfTown;
             int tradeLevel = Clan.PlayerClan.Leader.GetSkillValue(DefaultSkills.Trade);
 
-            double baseInterestRate = WEEKLY_BASE_INTEREST_RATE;
+            // Convert percentage to decimal
+            float baseInterestRate = settings.interestRate / 100;
 
             // use the exponential to calculate the interest rate adjustment 
             var prosperityAdjustment = (1 - Math.Exp(-0.0008 * (averageProsperous - 2000)));
