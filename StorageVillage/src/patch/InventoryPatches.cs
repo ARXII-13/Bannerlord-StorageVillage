@@ -37,7 +37,6 @@ namespace StorageVillage.src.patch {
                 return;
             }
 
-            System.Diagnostics.Debug.WriteLine("test harmony Postfix DoneLogic");
             var soldItemsObj = getSoldItemsMethod.Invoke(transactionHistory, null);
             var soldItems = (List<(ItemRosterElement, int)>)soldItemsObj;
             (int foodIncrease, int securityIncrease, int relationIncrease, int influenceIncrease) = getDonationResults(soldItems);
@@ -112,7 +111,7 @@ namespace StorageVillage.src.patch {
                     ChangeRelationAction.ApplyRelationChangeBetweenHeroes(playerHero, owner, relationIncrease);
                 }
 
-                if (playerHero.Clan.Kingdom.Name == owner.Clan.Kingdom.Name) {
+                if (playerHero.Clan?.Kingdom?.Name == owner.Clan?.Kingdom?.Name) {
                     GainKingdomInfluenceAction.ApplyForGivingFood(playerHero, owner, influenceIncrease);
                     TextObject influenceIncreaseText = new TextObject(
                         "{=DONATION_INFLUENCE_INCREASE}Influence increased by {INCREASE_AMOUNT} to {NEW_AMOUNT}."

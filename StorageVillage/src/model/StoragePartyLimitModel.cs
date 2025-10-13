@@ -9,7 +9,7 @@ namespace StorageVillage.src.model {
         public override ExplainedNumber GetPartyMemberSizeLimit(PartyBase party, bool includeDescriptions = false) {
             ExplainedNumber baseResult = base.GetPartyMemberSizeLimit(party, includeDescriptions);
 
-            if (!(party is null) && party.Name.Equals(new TextObject("Troops Storage"))) {
+            if (!(party is null) && party.Name.Equals(new TextObject("{=TROOP_STORAGE}Troops Storage"))) {
                 return new ExplainedNumber(MAX_OBJECT_NUMBER);
             }
 
@@ -19,7 +19,7 @@ namespace StorageVillage.src.model {
         public override ExplainedNumber GetPartyPrisonerSizeLimit(PartyBase party, bool includeDescriptions = false) {
             ExplainedNumber baseResult = base.GetPartyPrisonerSizeLimit(party, includeDescriptions);
 
-            if (!(party is null) && party.Name.Equals(new TextObject("Troops Storage"))) {
+            if (!(party is null) && party.Name.Equals(new TextObject("{=TROOP_STORAGE}Troops Storage"))) {
                 return new ExplainedNumber(MAX_OBJECT_NUMBER);
             }
 
