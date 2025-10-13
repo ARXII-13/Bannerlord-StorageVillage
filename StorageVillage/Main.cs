@@ -6,7 +6,6 @@ using StorageVillage.src.model;
 using TaleWorlds.CampaignSystem;
 using TaleWorlds.Core;
 using TaleWorlds.Library;
-using TaleWorlds.Localization;
 using TaleWorlds.MountAndBlade;
 using Debug = TaleWorlds.Library.Debug;
 
@@ -46,22 +45,5 @@ namespace StorageVillage {
                 campaignStarter.AddModel(new StoragePartyLimitModel());
             }
         }
-
-        protected void testCommand() {
-            Module.CurrentModule.AddInitialStateOption(
-                new InitialStateOption(
-                    "TestMainMenuOption",
-                    new TextObject("Click me!", null),
-                    9990,
-                    () => {
-                        InformationManager.DisplayMessage(new InformationMessage("InformationMessage"));
-                    },
-                    () => {
-                        return (false, null);
-                    }
-                )
-            );
-        }
-
     }
 }
