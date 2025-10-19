@@ -255,7 +255,6 @@ namespace StorageVillage.src.behavior {
                 }
                 else {
                     Settlement settlement = element.First().Identifier as Settlement;
-                    settlement.Town.FoodStocks += 100;
                     targetSettlement = settlement;
                     targetParty = null;
                 }
