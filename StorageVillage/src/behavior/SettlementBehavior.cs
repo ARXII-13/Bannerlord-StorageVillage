@@ -1,5 +1,7 @@
 ﻿using System;
-using System.Reflection;
+using System.Collections.Generic;
+using Helpers;
+using StorageVillage.src.setting;
 using StorageVillage.src.util;
 using TaleWorlds.CampaignSystem;
 using TaleWorlds.CampaignSystem.GameMenus;
@@ -17,12 +19,15 @@ namespace StorageVillage.src.behavior {
 
         private ItemRoster roster;
 
+        private Dictionary<string, ItemRoster> rosterMap;
+
         public override void RegisterEvents() {
             CampaignEvents.OnSessionLaunchedEvent.AddNonSerializedListener(this, new Action<CampaignGameStarter>(OnSessionLaunched));
         }
 
         public override void SyncData(IDataStore dataStore) {
             dataStore.SyncData("inventoryData", ref roster);
+            dataStore.SyncData("inventoryTownData", ref rosterMap);
         }
 
         private void OnSessionLaunched(CampaignGameStarter campaignGameStarter) {
@@ -138,7 +143,26 @@ namespace StorageVillage.src.behavior {
                 roster = new ItemRoster();
             }
 
-            InventoryManager.OpenScreenAsStash(roster);
+            if (rosterMap == null) {
+                rosterMap = new Dictionary<string, ItemRoster>();
+            }
+
+            StorageVillageSettings settings = StorageVillageSettings.Instance;
+
+            ItemRoster itemRoster;
+            string townStorageSetting = settings.townStorageSetting.SelectedValue;
+            if (townStorageSetting.Equals(Constants.STORAGE_SETTING_TYPE_TOWN)) {
+                string settlementId = Settlement.CurrentSettlement.StringId;
+                if (!rosterMap.ContainsKey(settlementId)) {
+                    rosterMap[settlementId] = new ItemRoster();
+                }
+                itemRoster = rosterMap[settlementId];
+            }
+            else {
+                itemRoster = roster;
+            }
+
+            InventoryScreenHelper.OpenScreenAsStash(itemRoster);
         }
         private void MenuConsequenceForTroop(MenuCallbackArgs args) {
             GameMenu.SwitchToMenu(Constants.TROOP_MENU_ID);
@@ -157,7 +181,6 @@ namespace StorageVillage.src.behavior {
         }
 
         private void OpenScreenAsDonateFood() {
-            InventoryManager inventoryManager = Campaign.Current.InventoryManager;
             ItemRoster newRoster = new ItemRoster();
             InventoryLogic inventoryLogic = new InventoryLogic(null);
             inventoryLogic.Initialize(
@@ -166,25 +189,18 @@ namespace StorageVillage.src.behavior {
                 isTrading: false,
                 isSpecialActionsPermitted: false,
                 CharacterObject.PlayerCharacter,
-                InventoryManager.InventoryCategoryType.Goods,
+                InventoryScreenHelper.InventoryCategoryType.Goods,
                 Settlement.CurrentSettlement.Town.MarketData,
                 useBasePrices: false,
+                InventoryScreenHelper.InventoryMode.Stash,
                 new TextObject("{=DONATE_FOOD_TO_SETTLEMENT}Donate Food to Settlement")
             );
 
-            FieldInfo inventroyLogicfield = typeof(InventoryManager).GetField("_inventoryLogic",
-                BindingFlags.Instance | BindingFlags.NonPublic);
-            inventroyLogicfield.SetValue(inventoryManager, inventoryLogic);
-
-            FieldInfo currentModeField = typeof(InventoryManager).GetField("_currentMode",
-                BindingFlags.Instance | BindingFlags.NonPublic);
-            currentModeField.SetValue(inventoryManager, InventoryMode.Stash);
+            InventoryState inventoryState = Game.Current.GameStateManager.CreateState<InventoryState>();
+            inventoryState.InventoryMode = InventoryScreenHelper.InventoryMode.Stash;
 
             inventoryLogic.SetDonateFoodFlag(true);
-
-            // Then proceed to push the state
-            InventoryState inventoryState = Game.Current.GameStateManager.CreateState<InventoryState>();
-            inventoryState.InitializeLogic(inventoryLogic);
+            inventoryState.InventoryLogic = inventoryLogic;
 
             Game.Current.GameStateManager.PushState(inventoryState);
         }

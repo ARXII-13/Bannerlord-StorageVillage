@@ -16,5 +16,8 @@ namespace StorageVillage.src.util {
         public static float FOOD_DONATE_RELATION_FACTOR = 0.005f;
         public static float FOOD_DONATE_INFLUENCE_FACTOR = 0.05f;
 
+        public static String STORAGE_SETTING_TYPE_GLOBAL = "Global Level";
+        public static String STORAGE_SETTING_TYPE_TOWN = "Town Level";
+
     }
 }

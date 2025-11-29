@@ -44,6 +44,7 @@
     </Reference>
     <Reference Include="MCMv5">
       <HintPath>$(GamePath)\Modules\Bannerlord.MBOptionScreen\bin\Win64_Shipping_Client\MCMv5.dll</HintPath>
+      <Private>false</Private>
     </Reference>
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System" />
