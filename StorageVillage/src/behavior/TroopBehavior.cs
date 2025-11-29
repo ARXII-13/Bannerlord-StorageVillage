@@ -4,6 +4,7 @@ using StorageVillage.src.util;
 using TaleWorlds.CampaignSystem;
 using TaleWorlds.CampaignSystem.GameMenus;
 using TaleWorlds.CampaignSystem.Party;
+using TaleWorlds.Library;
 using TaleWorlds.Localization;
 
 namespace StorageVillage.src.behavior {
@@ -98,7 +99,9 @@ namespace StorageVillage.src.behavior {
                 troopsParty = new MobileParty();
             }
 
-            troopsParty.Party.SetCustomName(new TextObject("{=TROOP_STORAGE}Troops Storage"));
+            if (troopsParty.StringId == null) {
+                troopsParty.StringId = "troops_storage_party_storage_village";
+            }
             PartyScreenHelper.OpenScreenAsManageTroopsAndPrisoners(troopsParty);
         }
 
