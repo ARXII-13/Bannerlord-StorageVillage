@@ -1,4 +1,5 @@
 ﻿using System;
+using Helpers;
 using StorageVillage.src.util;
 using TaleWorlds.CampaignSystem;
 using TaleWorlds.CampaignSystem.GameMenus;
@@ -97,16 +98,16 @@ namespace StorageVillage.src.behavior {
                 troopsParty = new MobileParty();
             }
 
-            troopsParty.SetCustomName(new TextObject("{=TROOP_STORAGE}Troops Storage"));
-            PartyScreenManager.OpenScreenAsManageTroopsAndPrisoners(troopsParty);
+            troopsParty.Party.SetCustomName(new TextObject("{=TROOP_STORAGE}Troops Storage"));
+            PartyScreenHelper.OpenScreenAsManageTroopsAndPrisoners(troopsParty);
         }
 
         private void MenuConsequenceForDonateTroops(MenuCallbackArgs args) {
-            PartyScreenManager.OpenScreenAsDonateGarrisonWithCurrentSettlement();
+            PartyScreenHelper.OpenScreenAsDonateGarrisonWithCurrentSettlement();
         }
 
         private void MenuConsequenceForDonatePrisoner(MenuCallbackArgs args) {
-            PartyScreenManager.OpenScreenAsDonatePrisoners();
+            PartyScreenHelper.OpenScreenAsDonatePrisoners();
         }
 
         private void MenuConsequenceForLeave(MenuCallbackArgs args) {

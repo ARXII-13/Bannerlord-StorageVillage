@@ -30,7 +30,7 @@ namespace StorageVillage.src.behavior {
         public override void RegisterEvents() {
             CampaignEvents.OnSessionLaunchedEvent.AddNonSerializedListener(this, new Action<CampaignGameStarter>(OnSessionLaunched));
 
-            CampaignEvents.DailyTickEvent.AddNonSerializedListener(
+            CampaignEvents.WeeklyTickEvent.AddNonSerializedListener(
                 this,
                 new Action(this.HandleBankWeeklyTickEvent)
             );

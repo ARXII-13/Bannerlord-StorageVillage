@@ -8,7 +8,6 @@ using TaleWorlds.CampaignSystem.Actions;
 using TaleWorlds.CampaignSystem.Inventory;
 using TaleWorlds.CampaignSystem.Settlements;
 using TaleWorlds.Core;
-using TaleWorlds.Engine;
 using TaleWorlds.Library;
 using TaleWorlds.Localization;
 
@@ -125,13 +124,11 @@ namespace StorageVillage.src.patch {
                     }
                 }
 
-                if (settings.foodDonationRelationIncrease) {
-                    if (relationIncrease > 0) {
-                        ChangeRelationAction.ApplyRelationChangeBetweenHeroes(playerHero, owner, relationIncrease);
-                    }
+                if (settings.foodDonationRelationIncrease && relationIncrease > 0) {
+                    ChangeRelationAction.ApplyRelationChangeBetweenHeroes(playerHero, owner, relationIncrease);
                 }
             }
-            if (settings.foodDonationRelationIncrease) {
+            if (settings.foodDonationRelationIncrease && relationIncrease > 0) {
                 MBReadOnlyList<Hero> notables = currentSettlement.Notables;
                 for (int i = 0; i < notables.Count; i++) {
                     Hero notable = notables[i];

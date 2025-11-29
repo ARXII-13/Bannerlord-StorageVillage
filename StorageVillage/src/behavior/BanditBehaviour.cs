@@ -8,6 +8,7 @@ using TaleWorlds.CampaignSystem.Party;
 using TaleWorlds.CampaignSystem.Settlements;
 using TaleWorlds.CampaignSystem.ViewModelCollection;
 using TaleWorlds.Core;
+using TaleWorlds.Core.ImageIdentifiers;
 using TaleWorlds.Localization;
 
 namespace StorageVillage.src.behavior {
@@ -139,14 +140,14 @@ namespace StorageVillage.src.behavior {
         private void MenuConsequenceForTargetSettlement(MenuCallbackArgs args) {
             List<InquiryElement> options = new List<InquiryElement>();
             string title = new TextObject("{=koX9okuG}None").ToString();
-            options.Add(new InquiryElement((object)null, title, new ImageIdentifier(ImageIdentifierType.Null)));
+            options.Add(new InquiryElement((object)null, title, new EmptyImageIdentifier()));
 
             List<Settlement> settlements = Settlement.FindAll(settlement =>
                 settlement.IsCastle || settlement.IsTown || settlement.IsVillage).ToList();
             settlements.Sort((Settlement x, Settlement y) => x.Name.ToString().CompareTo(y.Name.ToString()));
 
             foreach (Settlement settlement in settlements) {
-                options.Add(new InquiryElement(settlement, settlement.Name.ToString(), new ImageIdentifier(ImageIdentifierType.Null)));
+                options.Add(new InquiryElement(settlement, settlement.Name.ToString(), new EmptyImageIdentifier()));
             }
 
             MBInformationManager.ShowMultiSelectionInquiry(new MultiSelectionInquiryData(
@@ -166,7 +167,7 @@ namespace StorageVillage.src.behavior {
         private void MenuConsequenceForTargetParty(MenuCallbackArgs args) {
             List<InquiryElement> options = new List<InquiryElement>();
             string title = new TextObject("{=koX9okuG}None").ToString();
-            options.Add(new InquiryElement((object)null, title, new ImageIdentifier(ImageIdentifierType.Null)));
+            options.Add(new InquiryElement((object)null, title, new EmptyImageIdentifier()));
             List<MobileParty> parties = MobileParty.AllLordParties.ToList();
             parties.Sort((MobileParty x, MobileParty y) => x.Name.ToString().CompareTo(y.Name.ToString()));
             foreach (MobileParty party in parties) {
@@ -175,7 +176,7 @@ namespace StorageVillage.src.behavior {
                     if (characterObject != null) {
                         CharacterCode characterCode = CampaignUIHelper.GetCharacterCode(party.LeaderHero.CharacterObject, false);
                         if (characterCode != null) {
-                            options.Add(new InquiryElement(party, party.Name.ToString(), new ImageIdentifier(characterCode)));
+                            options.Add(new InquiryElement(party, party.Name.ToString(), new CharacterImageIdentifier(characterCode)));
                         }
                     }
                 }
@@ -287,11 +288,11 @@ namespace StorageVillage.src.behavior {
             }
 
             if (targetSettlement != null) {
-                party.Ai.SetMovePatrolAroundSettlement(targetSettlement);
+                party.SetMovePatrolAroundSettlement(targetSettlement, MobileParty.NavigationType.All, false);
             }
 
             if (targetParty != null) {
-                party.Ai.SetMoveGoAroundParty(targetParty);
+                party.SetMoveGoAroundParty(targetParty, MobileParty.NavigationType.All);
             }
         }
     }

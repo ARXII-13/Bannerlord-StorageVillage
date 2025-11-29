@@ -58,6 +58,10 @@
     <string id="CONFIRM" text="Confirm"/>
     <string id="CANCEL" text="Cancel"/>
 
+    <string id="STORAGE_SETTING" text="Storage Settings"/>
+    <string id="STORAGE_SETTING_TYPE" text="Storage Setting Type"/>
+    <string id="STORAGE_SETTING_HINT" text="Switch between different storage settings."/>
+
     <string id="BANK_SETTINGS" text="Bank Settings"/>
     <string id="BANK_INTEREST_RATE_SETTING" text="Bank Weekly Interest Rate"/>
     <string id="BANK_INTEREST_RATE_SETTING_HINT" text="Set the weekly interest rate decimal form"/>
