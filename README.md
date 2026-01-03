@@ -38,7 +38,7 @@ This feature can set the goal of the bandit units on the map. Player can select 
 
 ### Compatibility
 
-Personally tested v1.2.12.77991 build. Everything should works fine.
+Personally tested v1.3.7 build. Everything should works fine.
 
 ### Development
 
